@@ -1,0 +1,18 @@
+#Show/hide hidden files in Finder (persistant toggle)
+#TODO: combine into a single toggleHiddenFiles command
+alias showHiddenFiles='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder /System/Library/CoreServices/Finder.app'
+alias hideHiddenFiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app'
+
+lsMacAlias(){
+	if hash gls 2>/dev/null; then
+		#Use GNU ls instead of BSD ls, if it's available
+		alias ls='gls -AF --color --group-directories-first'
+	else
+		#If GNU ls (gls) isn't available, use this:
+		alias ls='ls -AFG'
+	fi
+} 
+lsMacAlias
+
+#Use GNU manpages (when available)
+alias man='_() { echo $1; man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1 1>/dev/null 2>&1;  if [ "$?" -eq 0 ]; then man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1; else man $1; fi }; _'
