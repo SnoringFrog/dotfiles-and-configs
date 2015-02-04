@@ -1,1 +1,62 @@
-/Users/430011037/.mac_bashrc
+#Show/hide hidden files in Finder (persistant toggle)
+#TODO: combine into a single toggleHiddenFiles command
+alias showHiddenFiles='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder /System/Library/CoreServices/Finder.app'
+alias hideHiddenFiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app'
+
+if hash gls 2>/dev/null; then
+	#Use GNU ls instead of BSD ls, if it's available
+	alias ls='gls -hAF --color --group-directories-first'
+else
+	#If GNU ls (gls) isn't available, use this:
+	alias ls='ls -hAFG'
+fi
+ 
+# Use GNU mkdir if available, otherwise emulate it
+if hash gmkdir 2>/dev/null; then
+	alias mkdir='gmkdir -pv'
+else
+	function GNU_mkdir_emulator {
+		args="$@"
+
+		if [[ $1 == "-p" || $2 == "-p" ]]; then
+			p="-p"
+		fi
+		
+		if [[ $1 == "-v" || $2 == "-v" ]]; then
+			v="-v"
+		fi
+
+		mkdir $p "$@"
+		if [ "$?" -eq 0 ]; then
+			if [[ "$v" == "-v" && "$p" == "-p" ]]; then
+				for arg in $args; do
+					if [[ $arg =~ (\-v|\-p) ]]; then
+						continue
+					elif [[ $arg == *"/"* ]]; then
+						SAVEIFS=$IFS
+						IFS="/"
+
+						read -a multi_dir <<< "$arg"
+						fulldir=""
+
+						IFS=$SAVEIFS
+						for dir in ${multi_dir[@]}; do
+							if [[ $fulldir != "" ]]; then 
+								fulldir+="/$dir"
+							else  
+								fulldir+="$dir"
+							fi
+							echo "mkdir: created directory '$fulldir'"
+						done
+					else
+						echo "mkdir: created directory '$arg'"	
+					fi
+				done
+			fi
+		fi
+	}
+	alias mkdir='GNU_mkdir_emulator'
+fi
+
+# Use GNU manpages (when available)
+alias man='_() { echo $1; man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1 1>/dev/null 2>&1;  if [ "$?" -eq 0 ]; then man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1; else man $1; fi }; _'
