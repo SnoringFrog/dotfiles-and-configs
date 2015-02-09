@@ -58,5 +58,25 @@ else
 	alias mkdir='GNU_mkdir_emulator'
 fi
 
-# Use GNU manpages (when available)
-alias man='_() { echo $1; man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1 1>/dev/null 2>&1;  if [ "$?" -eq 0 ]; then man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1; else man $1; fi }; _'
+# Use GNU manpages (when available & appropriate) 
+function select_proper_man {
+#Single line version (consider aliases)
+#alias man='_() { echo $1; man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1 1>/dev/null 2>&1;  if [ "$?" -eq 0 -a `type -t $1` == "alias" -a "`type $1 | cut -d\" \" -f5 | cut -c2`" == "g" ]; then man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1; else man $1; fi }; _'
+
+#Single line versein (assume all replaced)
+#alias man='_() { echo $1; man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1 1>/dev/null 2>&1;  if [ "$?" -eq 0 ]; then man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1; else man $1; fi }; _'
+	
+	echo $1
+	man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1 1>/dev/null 2>&1
+	cmd_type=`type -t $1`
+	cmd_first_letter=`type $1 | cut -d" " -f5 | cut -c2`
+
+	if [ "$?" -eq 0 -a "$cmd_type" == "alias" -a "$cmd_first_letter" == "g" ]; then 
+		if [ $1 != "groups" ]; then
+			man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1; 
+		else 
+			man $1
+		fi 
+	fi 
+}
+alias man='select_proper_man'
