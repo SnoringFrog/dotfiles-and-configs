@@ -89,12 +89,17 @@ alias la='ls -A'                              # all but . and ..
 # alias l='ls -CF'                              #
 alias ls='ls -hAF --color --group-directories-first' #human readable, dotfiles, classify, color, directories first
 # alias ls='gls -AF --color --group-directories-first' #Mac with gnu ls
-
+#
 alias ..='cd ..'
 alias ...='cd ../..'
 alias mkdir='mkdir -pv' #mkdir always creates intermediate directories and tells us about it
 # alias touchallthethings='find / -exec touch {} \;' #Touch EVERYTHING
-
+#
+# Enable stderred (use before command to make stderr red), if it's installed
+stderred_lib="${HOME}/usr/share/stderred/build/libstderred.so"
+if [ -f "$stderred_lib" ]; then
+	alias stderred="DYLD_INSERT_LIBRARIES=$stderred_lib\${DYLD_INSERT_LIBRARIES:+:\$DYLD_INSERT_LIBRARIES}"
+fi
 # Umask
 #
 # /etc/profile sets 022, removing write perms to group + others.

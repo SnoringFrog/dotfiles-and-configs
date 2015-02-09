@@ -71,9 +71,15 @@ function select_proper_man {
 	cmd_first_letter=`type $1 | cut -d" " -f5 | cut -c2`
 
 	if [ "$?" -eq 0 -a "$cmd_type" == "alias" -a "$cmd_first_letter" == "g" -a "$1" != "groups" ]; then 
-		man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1; 
+		man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1 
 	else
-		man $1
+		/usr/bin/man $1
 	fi 
 }
 alias man='select_proper_man'
+
+#Enable stderred (use before a command to make stderr print red), if it's abavailable
+stderred_lib="${HOME}/usr/share/stderred/libstderred.dylib"
+if [ -f "$stderred_lib" ]; then
+	alias stderred="DYLD_INSERT_LIBRARIES=$stderred_lib\${DYLD_INSERT_LIBRARIES:+:\$DYLD_INSERT_LIBRARIES}"
+fi
