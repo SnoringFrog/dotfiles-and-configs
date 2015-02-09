@@ -193,7 +193,7 @@ set omnifunc=syntaxcomplete#Complete
 autocmd FileType python set omnifunc=python3complete#Complete
 
 "Treat these filetypes as zip
- au BufReadCmd *.jar,*.war,*.ear,*.sar,*.rar,*.sublime-package,*.xpi call zip#Browse(expand("<amatch>"))
+ au BufReadCmd *.jar,*.war,*.ear,*.sar,*.rar,*.tar,*.sublime-package,*.xpi call zip#Browse(expand("<amatch>"))
 
  "Enable line numbers by default
  set nu

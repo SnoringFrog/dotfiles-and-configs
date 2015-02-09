@@ -50,7 +50,6 @@ export HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredup
 # HISTIGNORE is a colon-delimited list of patterns which should be excluded.
 # The '&' is a special pattern which suppresses duplicate entries.
 export HISTIGNORE=$'[ \t]*:&:[fb]g:exit'
-# export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls' # Ignore the ls command as well
 #
 # Whenever displaying the prompt, write the previous line to disk
 # export PROMPT_COMMAND="history -a"
@@ -265,7 +264,7 @@ function blink {
 
 
 # Environment-specific rc's
-#TODO: more efficient loading of custom rcs, loop of some sort (through urs/rcs?)
+#TODO: more efficient loading of custom rcs, loop of some sort (through usr/rcs?)
 env_specific_rc_dir="${HOME}"
 
 # Genworth-specific bashrc
@@ -290,7 +289,7 @@ PS1='\n\e[0;32m\u@\h\e[m \e[0;33m\w\e[m\e[0;36m$(__git_ps1 2>/dev/null)\e[m\n\$ 
 PS1="\[\033]0;\w\007\]"${PS1} 
 export PS1
 
-# Current directory in window title (not working on Mac?)
+# Current directory in window title (not working on Mac? maybe not at all, need to test)
 # export PROMPT_COMMAND='echo -ne "\033]0;$PWD\007"'
 # export PROMPT_COMMAND='echo -ne "\033]0;${USER}: ${PWD##*/}\007"'
 
