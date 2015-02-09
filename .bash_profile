@@ -2,10 +2,14 @@ shopt -s dotglob #ensure dotfiles are found
 #Source all ~/usr/src files (needs to be done before my bashrc)
 SAVEIFS=$IFS
 IFS=$(echo -en "\n\b")
+if [ "$(ls -A ${HOME}/usr/src)" ]; then
 for f in ${HOME}/usr/src/*; do source "$f" 2> "${HOME}/usr/.src_errors"; done
+fi
 
 #Run all scripts in ~/usr/init
-for f in ${HOME}/usr/init/*; do . "$f" & 2> "${HOME}/usr/.init_errors"; done
+if [ "$(ls -A ${HOME}/usr/init)" ]; then
+for f in ${HOME}/usr/init/*; do source "$f" 2> "${HOME}/usr/.init_errors"; done
+fi
 IFS=$SAVEIFS
 shopt -u dotglob #disable dotglob, in case I don't want it elsewhere
 
