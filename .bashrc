@@ -266,6 +266,11 @@ function blink {
 	fi
 	echo -e "\033[5;${color}m$msg\033[0m"
 }
+#
+# Change displayed username/host in prompt
+function changePS1 {
+	PS1="\n\e[0;32m$1\e[m \e[0;33m\w\e[m\e[0;36m$(__git_ps1 2>/dev/null)\e[m\n\$ "
+}
 
 
 # Environment-specific rc's
@@ -317,7 +322,6 @@ fi
 	complete -F _todo todo
 #END:todo.txt/todo.sh
 
-
 ## Colored manpages (from: https://github.com/Arkham/dotfiles/blob/master/bashrc)
 export LESS_TERMCAP_mb=$'\E[01;31m'
 export LESS_TERMCAP_md=$'\E[01;31m'
@@ -326,3 +330,10 @@ export LESS_TERMCAP_se=$'\E[0m'
 export LESS_TERMCAP_so=$'\E[01;44;33m'
 export LESS_TERMCAP_ue=$'\E[0m'
 export LESS_TERMCAP_us=$'\E[01;32m'
+
+# Syntax highlighting in less 
+#	requires GNU source-higlight (http://www.gnu.org/software/src-highlite/)
+#	which in turn requires boost (http://www.boost.org/)
+#	Helpful for Mac: https://wincent.com/wiki/Installing_GNU_Source-highlight_on_Mac_OS_X_10.6.7_Snow_Leopard
+export LESSOPEN="| /usr/local/bin/src-hilite-lesspipe.sh %s"
+export LESS=' -R '
