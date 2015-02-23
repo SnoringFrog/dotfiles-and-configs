@@ -65,12 +65,13 @@ function select_proper_man {
 
 #Single line version (assume all replaced)
 #alias man='_() { echo $1; man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1 1>/dev/null 2>&1;  if [ "$?" -eq 0 ]; then man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1; else man $1; fi }; _'
+
+#If you alias "groups" to something that's not "ggroups", this will probably give you the wrong man page
 	echo $1
-	man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1 1>/dev/null 2>&1
 	cmd_type=`type -t $1`
 	cmd_first_letter=`type $1 | cut -d" " -f5 | cut -c2`
-
-	if [ "$?" -eq 0 -a "$cmd_type" == "alias" -a "$cmd_first_letter" == "g" -a "$1" != "groups" ]; then 
+	man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1 1>/dev/null 2>&1
+	if [ "$?" -eq 0 -a "$cmd_type" == "alias" -a "$cmd_first_letter" == "g" ]; then 
 		man -M $(brew --prefix)/opt/coreutils/libexec/gnuman $1 
 	else
 		/usr/bin/man $1
