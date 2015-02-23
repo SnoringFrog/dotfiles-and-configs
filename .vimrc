@@ -57,31 +57,31 @@ endif
 " Only do this part when compiled with support for autocommands.
 if has("autocmd")
 
-  " Enable file type detection.
-  " Use the default filetype settings, so that mail gets 'tw' set to 72,
-  " 'cindent' is on in C files, etc.
-  " Also load indent files, to automatically do language-dependent indenting.
-  filetype plugin indent on
+	" Enable file type detection.
+	" Use the default filetype settings, so that mail gets 'tw' set to 72,
+	" 'cindent' is on in C files, etc.
+	" Also load indent files, to automatically do language-dependent indenting.
+	filetype plugin indent on
 
-  " Put these in an autocmd group, so that we can delete them easily.
-  augroup vimrcEx
-  au!
+	" Put these in an autocmd group, so that we can delete them easily.
+	augroup vimrcEx
+		au!
 
-  " For all text files set 'textwidth' to 78 characters.
-  autocmd FileType text setlocal textwidth=78
+		" For all text files set 'textwidth' to 78 characters.
+		autocmd FileType text setlocal textwidth=78
 
-  " When editing a file, always jump to the last known cursor position.
-  " Don't do it when the position is invalid or when inside an event handler
-  " (happens when dropping a file on gvim).
-  " Also don't do it when the mark is in the first line, that is the default
-  " position when opening a file.
+		" When editing a file, always jump to the last known cursor position.
+		" Don't do it when the position is invalid or when inside an event handler
+		" (happens when dropping a file on gvim).
+		" Also don't do it when the mark is in the first line, that is the default
+		" position when opening a file.
 
-  autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+		autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
-  augroup END
+	augroup END
 
 else
-  set autoindent		" always set autoindenting on
+	set autoindent		" always set autoindenting on
 
 endif " has("autocmd")
 
@@ -107,8 +107,8 @@ nnoremap <silent> <C-k> O<Esc>
 set scrolloff=2 "Top cursor position is 2 lines from top/bottom of screen
 
 "Going to next search result centers on the line the result is in
-map N Nzz
-map n nzz
+noremap N Nzz
+noremap n nzz
 
 "Swap : and ; (to eliminate pressing shift to enter ex commands)
 nnoremap ; :
@@ -122,6 +122,7 @@ hi CursorLine term=none cterm=none ctermbg=233
 set backup
 set backupdir=~/.vim//backup "extra slash saves full path name with % for /
 set directory=~/.vim//tmp "extra slash saves full path name with % for /
+set viewdir=~/.vim//view 
 set undodir=~/.vim/undo
 
 set hidden "Hide buffers instead of closing them
@@ -132,18 +133,18 @@ set title "Change the terminal's title
 nnoremap <silent> ,/ :nohlsearch<CR> 
 
 function MyTabLine()
-	  let s = ''
-	  for i in range(tabpagenr('$'))
+	let tabstring = ''
+	for i in range(tabpagenr('$'))
 		let file = ''
-	    " select the highlighting
-	    if i + 1 == tabpagenr()
-	      let s .= '%#TabLineSel#'
-	    else
-	      let s .= '%#TabLine#'
-	    endif
+		" select the highlighting
+		if i + 1 == tabpagenr()
+			let tabstring .= '%#TabLineSel#'
+		else
+			let tabstring .= '%#TabLine#'
+		endif
 
-	    " set the tab page number (for mouse clicks)
-	    let s .= '%' . (i + 1) . 'T'
+		" set the tab page number (for mouse clicks)
+		let tabstring .= '%' . (i + 1) . 'T'
 
 		let file .= bufname(tabpagebuflist(i+1)[tabpagewinnr(i) - 1])  "Gets file name
 		let file = fnamemodify(file,":t") "File basename only
@@ -151,19 +152,18 @@ function MyTabLine()
 		"<index>:<filename>[modified] | <index>:<2ndfilename>[modified] etc
 		if i + 1 == tabpagenr('$')
 			"No pipe after final tab name
-			let s .= (i + 1) . ':' . file . (getbufvar(file, "&mod")?'*':'') . '%#TabLine#' 
+			let tabstring .= (i + 1) . ':' . file . (getbufvar(file, "&mod")?'*':'') . '%#TabLine#' 
 		else
-			let s .= (i + 1) . ':' . file . (getbufvar(file, "&mod")?'*':'') . '%#TabLine# | ' 
+			let tabstring .= (i + 1) . ':' . file . (getbufvar(file, "&mod")?'*':'') . '%#TabLine# | ' 
 		endif
 		"let s .= (i + 1) . ':' . file . (getbufvar(file, "&mod")?'*':'') . '%#Normal# | ' 
-		
-	  endfor
+	endfor
 
-	  " after the last tab fill with TabLineFill 
-	  let s .= '%#TabLine#%T'
-	  "let s .= '%#TabLineFill#%T'
+	" after the last tab fill with TabLineFill 
+	let tabstring .= '%#TabLine#%T'
+	"let s .= '%#TabLineFill#%T'
 
-	  return s
+	return tabstring
 endfunction
 
 hi TabLine term=NONE cterm=NONE
@@ -192,8 +192,48 @@ filetype plugin on
 set omnifunc=syntaxcomplete#Complete
 autocmd FileType python set omnifunc=python3complete#Complete
 
-"Treat these filetypes as zip
- au BufReadCmd *.jar,*.war,*.ear,*.sar,*.rar,*.tar,*.sublime-package,*.xpi call zip#Browse(expand("<amatch>"))
+"Treat these filetypes as zip 
+"(.jar, .war removed because they were being opened twice per browser for some reason)
+ au BufReadCmd *.ear,*.sar,*.rar,*.sublime-package,*.xpi call zip#Browse(expand("<amatch>"))
 
  "Enable line numbers by default
  set nu
+
+"Press space in normal mode to toggle a fold; otherwise do default behavior
+ nnoremap <silent> <Space> @=(foldlevel('.')?'za':"\<Space>")<CR>
+
+"In visual mode, space creates a fold
+ vnoremap <Space> zf
+
+"Make saving/restoring folds automatic
+ au BufWritePost,BufLeave,WinLeave ?* mkview
+ au BufWinEnter ?* silent loadview
+
+let mapleader=","
+let maplocalleader="\\"
+
+"Clear current line
+nnoremap <leader>d O<Esc>jddk
+
+"Comment out a line (uneeded now that I use NerdCommenter)
+"augroup commentLineGroup
+	"autocmd!
+	"autocmd FileType javascript,c nnoremap <buffer> <leader>c I//<esc> 
+	"autocmd FileType python,sh,ruby nnoremap <buffer> <leader>c I#<esc> 
+	"autocmd FileType vim nnoremap <buffer> <leader>c I"<esc> 
+"augroup END
+
+"Change vim tabs
+nnoremap <leader>n :tabn<cr>
+nnoremap <leader>p :tabp<cr>
+
+"Wrap a word in double quotes, single quotes, backticks, parens, brackets, braces
+nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
+nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
+nnoremap <leader>` viw<esc>a`<esc>hbi`<esc>lel
+nnoremap <leader>( viw<esc>a(<esc>hbi)<esc>lel
+nnoremap <leader>( viw<esc>a(<esc>hbi)<esc>lel
+nnoremap <leader>[ viw<esc>a[<esc>hbi]<esc>lel
+nnoremap <leader>[ viw<esc>a[<esc>hbi]<esc>lel
+nnoremap <leader>{ viw<esc>a{<esc>hbi}<esc>lel
+nnoremap <leader>{ viw<esc>a{<esc>hbi}<esc>lel
