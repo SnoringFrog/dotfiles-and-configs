@@ -53,6 +53,9 @@ fi
 export TODOTXT_DEFAULT_ACTION=ls #default action: list outstanding tasks
 export TODOTXT_SORT_COMMAND='env LC_COLLATE=C sort -k 2,2 -k 1,1n' #sort by priority, then number
 
+#Ignore .DS_Store files during tab completion
+export FIGNORE=DS_Store
+
 # Setting PATH for Python 3.4
 # The orginal version is saved in .bash_profile.pysave
 PATH="/Library/Frameworks/Python.framework/Versions/3.4/bin:${PATH}"
