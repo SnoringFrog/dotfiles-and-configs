@@ -1,13 +1,4 @@
-" An example for a vimrc file.
-"
-" Maintainer:	Bram Moolenaar <Bram@vim.org>
-" Last change:	2014 Feb 05
-"
-" To use it, copy it to
-"     for Unix and OS/2:  ~/.vimrc
-"	      for Amiga:  s:.vimrc
-"  for MS-DOS and Win32:  $VIM\_vimrc
-"	    for OpenVMS:  sys$login:.vimrc
+" Sorry this is such a mess. I'll get around to organizing it one day.
 
 " When started as "evim", evim.vim will already have done these settings.
 if v:progname =~? "evim"
@@ -209,6 +200,10 @@ autocmd FileType python set omnifunc=python3complete#Complete
  au BufWritePost,BufLeave,WinLeave ?* mkview
  au BufWinEnter ?* silent loadview
 
+ "Set matchpairs for commands like ci 
+set mps+=<:>
+au FileType c,cpp,java set mps+==:; "c-style var assignments
+
 let mapleader=","
 let maplocalleader="\\"
 
@@ -232,8 +227,32 @@ nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
 nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
 nnoremap <leader>` viw<esc>a`<esc>hbi`<esc>lel
 nnoremap <leader>( viw<esc>a(<esc>hbi)<esc>lel
-nnoremap <leader>( viw<esc>a(<esc>hbi)<esc>lel
+nnoremap <leader>) viw<esc>a(<esc>hbi)<esc>lel
 nnoremap <leader>[ viw<esc>a[<esc>hbi]<esc>lel
-nnoremap <leader>[ viw<esc>a[<esc>hbi]<esc>lel
+nnoremap <leader>] viw<esc>a[<esc>hbi]<esc>lel
 nnoremap <leader>{ viw<esc>a{<esc>hbi}<esc>lel
-nnoremap <leader>{ viw<esc>a{<esc>hbi}<esc>lel
+nnoremap <leader>} viw<esc>a{<esc>hbi}<esc>lel
+
+augroup filetype_latex
+   autocmd!
+	"add Latex quotes to matching pair highlighting   
+	au FileType tex,plaintex set mps+=`:' 
+
+	"Wrap a word in Latex style quotes
+	au FileType tex,plaintex nnoremap <leader>` viw<esc>a`<esc>hbi'<esc>lel
+
+	"For autopairs plugin (disables backtick matching in favor of `')
+	au FileType tex,plaintex let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"', "`":"'"} 
+
+	" Enable [y|d|c][a|q]['|"] for LaTeX quotes
+	au FileType tex,plaintex onoremap a' :<c-u>normal! muF`vf'<cr>`u
+	au FileType tex,plaintex onoremap i' :<c-u>normal! muF`lvf'h<cr>`u
+	au FileType tex,plaintex onoremap a" :<c-u>normal! mu2F`v2f'<cr>`u
+	au FileType tex,plaintex onoremap i" :<c-u>normal! mu2F`2lv2f'2h<cr>`u
+augroup END "Latex
+
+augroup filetype_vim
+	autocmd!
+	"Disable double quote pair completion from AutoPairs plugin
+	au FileType vim let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'", "`":"`"} 
+augroup END "Vim
