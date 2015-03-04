@@ -271,6 +271,16 @@ function blink {
 function changePS1 {
 	PS1="\n\e[0;32m$1\e[m \e[0;33m\w\e[m\e[0;36m$(__git_ps1 2>/dev/null)\e[m\n\$ "
 }
+#
+# Follow symlink (to file or directory)
+function sym_cd {
+	dest=`realpath $1`
+	if [[ -d ""$dest"" ]]; then
+		cd "$dest"
+	else 
+		cd `dirname "$dest"`
+	fi
+}
 
 
 # Environment-specific rc's

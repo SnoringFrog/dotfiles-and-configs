@@ -244,11 +244,11 @@ augroup filetype_latex
 	"For autopairs plugin (disables backtick matching in favor of `')
 	au FileType tex,plaintex let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"', "`":"'"} 
 
-	" Enable [y|d|c][a|q]['|"] for LaTeX quotes
-	au FileType tex,plaintex onoremap a' :<c-u>normal! muF`vf'<cr>`u
-	au FileType tex,plaintex onoremap i' :<c-u>normal! muF`lvf'h<cr>`u
-	au FileType tex,plaintex onoremap a" :<c-u>normal! mu2F`v2f'<cr>`u
-	au FileType tex,plaintex onoremap i" :<c-u>normal! mu2F`2lv2f'2h<cr>`u
+	" Enable [y|d|c][a|q]['|"] for LaTeX quotes (Unecessary due to vim-textobject-latex plugin) 
+	"au FileType tex,plaintex onoremap a' :<c-u>normal! muF`vf'<cr>`u
+	"au FileType tex,plaintex onoremap i' :<c-u>normal! muT`vt'<cr>`u
+	"au FileType tex,plaintex onoremap a" :<c-u>normal! mu2F`v2f'<cr>`u
+	"au FileType tex,plaintex onoremap i" :<c-u>normal! mu2T`v2t'<cr>`u
 augroup END "Latex
 
 augroup filetype_vim

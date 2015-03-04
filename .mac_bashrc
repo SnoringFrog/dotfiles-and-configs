@@ -3,6 +3,11 @@
 alias showHiddenFiles='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder /System/Library/CoreServices/Finder.app'
 alias hideHiddenFiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app'
 
+# Need to update to a single if to check for gnu-coreutils and bring in all my aliases if that's available
+
+#Use GNU realpath (GNU coreutils only; didn't use an if block b/c there is no BSD realpath)
+alias realpath='grealpath'
+
 if hash gls 2>/dev/null; then
 	#Use GNU ls instead of BSD ls, if it's available
 	alias ls='gls -hAF --color --group-directories-first'
