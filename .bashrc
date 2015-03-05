@@ -273,7 +273,7 @@ function changePS1 {
 }
 #
 # Follow symlink (to file or directory)
-function sym_cd {
+function sym-cd {
 	dest=`realpath $1`
 	if [[ -d ""$dest"" ]]; then
 		cd "$dest"
