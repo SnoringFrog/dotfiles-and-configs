@@ -20,21 +20,32 @@ else
 endif
 set history=100		" keep 100 lines of command line history
 set ruler		" show the cursor position all the time
+"set rulerformat=%l/%L,%c%V%=%P
+set rulerformat=%l/%L,%c%V%=%P           " position
 set showcmd		" display incomplete commands
 set incsearch		" do incremental searching
-
+			
 " For Win32 GUI: remove 't' flag from 'guioptions': no tearoff menu entries
 " let &guioptions = substitute(&guioptions, "t", "", "g")
 
 " Don't use Ex mode, use Q for formatting
 map Q gq
 
-" CTRL-U in insert mode deletes a lot.  Use CTRL-G u to first break undo,
-" so that you can undo CTRL-U after inserting a line break.
+" Make ctrl-U, ctrl-u, and ctrl-w undoable
 inoremap <C-U> <C-G>u<C-U>
+inoremap <C-u> <C-g>u<C-u>
+inoremap <C-w> <C-g>u<c-w>
 
 " In many terminal emulators the mouse works just fine, thus enable it.
+" n = Normal mode
+" v = Visual mode
+" i = Insert mode
+" c = Command Line mode
+" h = all of the above (when editing a help file)
+" a = all of the above
+" r = left-click works for 'press enter' type prompts
 if has('mouse')
+  "set mouse=vic " Stops clicking window to regain focus from moving cursor most of the time
   set mouse=a
 endif
 
@@ -59,7 +70,7 @@ if has("autocmd")
 		au!
 
 		" For all text files set 'textwidth' to 78 characters.
-		autocmd FileType text setlocal textwidth=78
+		"autocmd FileType text setlocal textwidth=78
 
 		" When editing a file, always jump to the last known cursor position.
 		" Don't do it when the position is invalid or when inside an event handler
@@ -83,11 +94,12 @@ if !exists(":DiffOrig")
   command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
 		  \ | wincmd p | diffthis
 endif
-
+		
 "Personal additions
 "Fixing tab width
 set tabstop=4 "The width of a tab is 4
 set shiftwidth=4 "Indents will have a width of 4
+set shiftround " > and < round to multiples of shiftwidth
 set softtabstop =4 "Sets the number of columns for a tab
 
 "Add newlines and stay in normal mode
@@ -97,9 +109,16 @@ nnoremap <silent> <C-k> O<Esc>
 "Pulled from internet
 set scrolloff=2 "Top cursor position is 2 lines from top/bottom of screen
 
+"Clear current search with ,/
+nnoremap <silent> ,/ :nohlsearch<CR> 
+
 "Going to next search result centers on the line the result is in
 noremap N Nzz
 noremap n nzz
+
+"Ignore case when searching unless capital letters are used
+set ignorecase
+set smartcase
 
 "Swap : and ; (to eliminate pressing shift to enter ex commands)
 nnoremap ; :
@@ -117,11 +136,28 @@ set viewdir=~/.vim//view
 set undodir=~/.vim/undo
 
 set hidden "Hide buffers instead of closing them
-set undolevels=1000 "Allow 1000 levels of undo
+set undolevels=2500 "Allow 1000 levels of undo
 set title "Change the terminal's title
 
-"Clear current search with ,/
-nnoremap <silent> ,/ :nohlsearch<CR> 
+set splitbelow "when splitting, put new window below current window 
+
+if has('statusline')
+	if version >= 700
+		" Fancy status line.
+		set statusline =
+		set statusline+=%n								   " buffer number
+		set statusline+=%{'/'.bufnr('$')}\                 " buffer count
+		set statusline+=%f%m\                              " file name and modified flag
+		set statusline+=(%{strlen(&ft)?&ft:'none'})		   " file type
+		set statusline+=%=								   " indent right
+		set statusline+=U+%04B\                            " Unicode char under cursor
+		set statusline+=%-6.(%l/%{line('$')},%c%V%)\ %<%P  " position
+	endif
+endif
+
+"hi StatusLine term=none, cterm=none, gui=none 
+hi StatusLine term=none, cterm=undercurl, gui=none 
+set laststatus=2
 
 function MyTabLine()
 	let tabstring = ''
@@ -256,3 +292,10 @@ augroup filetype_vim
 	"Disable double quote pair completion from AutoPairs plugin
 	au FileType vim let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'", "`":"`"} 
 augroup END "Vim
+
+
+" github.com/mathiasbynens/dotfiles
+" Enable per-directory .vimrc files and disable unsafe commands in them
+set exrc
+set secure
+
