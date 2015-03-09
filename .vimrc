@@ -136,7 +136,7 @@ set viewdir=~/.vim//view
 set undodir=~/.vim/undo
 
 set hidden "Hide buffers instead of closing them
-set undolevels=2500 "Allow 1000 levels of undo
+set undolevels=2500 "Allow more levels of undo
 set title "Change the terminal's title
 
 set splitbelow "when splitting, put new window below current window 
