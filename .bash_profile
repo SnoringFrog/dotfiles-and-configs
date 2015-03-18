@@ -49,6 +49,21 @@ if hash fortune 2>/dev/null; then
 	fi
 fi
 
+#fish fridays
+if hash fish 2>/dev/null; then
+	if [[ `date +%w` -eq 5 && "$SHELL" != *"fish"* ]]; then
+		echo "It's fish Friday! Changing default shell."
+		chsh -s /usr/local/bin/fish
+	
+		#Open new iTerm tab (Mac-only, requires https://gist.github.com/bobthecow/757788)
+		if [ `uname -s` == "Darwin" ]; then tab; exit; fi
+	elif [[ `date +%w` -ne 5 && "$SHELL" == *"fish"* ]]; then
+		echo "Not Friday, but fish is still the default shell. Let's fix that."
+		chsh -s /bin/bash
+	fi
+fi	
+
+
 #todo.txt 
 export TODOTXT_DEFAULT_ACTION=ls #default action: list outstanding tasks
 export TODOTXT_SORT_COMMAND='env LC_COLLATE=C sort -k 2,2 -k 1,1n' #sort by priority, then number
