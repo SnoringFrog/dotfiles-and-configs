@@ -9,6 +9,32 @@ endif
 " This must be first, because it changes other options as a side effect.
 set nocompatible
 
+filetype off
+set rtp+=~/.vim/bundle/Vundle.vim/
+call vundle#begin()
+
+Plugin 'gmarik/Vundle.vim'
+Plugin 'dag/vim-fish' " Syntax highlighting and other tweaks for .fish files
+Plugin 'dahu/vim-fanfingtastic' " Allow F, f, T, t, ; commands to wrap over lines
+Plugin 'kana/vim-textobj-user' " Simpler user created text objects
+Plugin 'rbonvall/vim-textobj-latex' " LaTeX text objects; requires kana/vim-textobj-user
+Plugin 'scrooloose/nerdcommenter' " Simpler commenting
+Plugin 'gregsexton/MatchTag' " Highlights matching HTMl/XML tags when cursor is on a tag
+Plugin 'jiangmiao/auto-pairs' " Automatically insert matching (), {}, etc.
+
+" Vim scripts
+Plugin 'vim-scripts/matchparenpp' " Echo line of matching (), {}, etc
+Plugin 'vim-scripts/AutoComplPop' " Autocomplete popup suggestions
+
+call vundle#end()
+filetype plugin indent on
+
+
+" Vim needs a more POSIX compatible shell, fish is not one
+if &shell =~# 'fish$'
+	set shell=sh
+endif
+
 " allow backspacing over everything in insert mode
 set backspace=indent,eol,start
 
@@ -23,6 +49,7 @@ set ruler		" show the cursor position all the time
 "set rulerformat=%l/%L,%c%V%=%P
 set rulerformat=%l/%L,%c%V%=%P           " position
 set showcmd		" display incomplete commands
+set showmode	" Show current mode
 set incsearch		" do incremental searching
 			
 " For Win32 GUI: remove 't' flag from 'guioptions': no tearoff menu entries
@@ -123,6 +150,8 @@ set smartcase
 "Swap : and ; (to eliminate pressing shift to enter ex commands)
 nnoremap ; :
 nnoremap : ;
+vnoremap ; :
+vnoremap : ;
 
 "Highlight the current line (dark grey)
 set cul
@@ -262,12 +291,13 @@ nnoremap <leader>p :tabp<cr>
 nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
 nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
 nnoremap <leader>` viw<esc>a`<esc>hbi`<esc>lel
-nnoremap <leader>( viw<esc>a(<esc>hbi)<esc>lel
-nnoremap <leader>) viw<esc>a(<esc>hbi)<esc>lel
-nnoremap <leader>[ viw<esc>a[<esc>hbi]<esc>lel
-nnoremap <leader>] viw<esc>a[<esc>hbi]<esc>lel
-nnoremap <leader>{ viw<esc>a{<esc>hbi}<esc>lel
-nnoremap <leader>} viw<esc>a{<esc>hbi}<esc>lel
+nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
+nnoremap <leader>) viw<esc>a)<esc>hbi(<esc>lel
+nnoremap <leader>[ viw<esc>a]<esc>hbi[<esc>lel
+nnoremap <leader>] viw<esc>a]<esc>hbi[<esc>lel
+nnoremap <leader>{ viw<esc>a}<esc>hbi{<esc>lel
+nnoremap <leader>} viw<esc>a}<esc>hbi{<esc>lel
+nnoremap <leader><leader>} viw<esc>a{<esc>hbi}<esc>lel
 
 augroup filetype_latex
    autocmd!
@@ -299,3 +329,50 @@ augroup END "Vim
 set exrc
 set secure
 
+
+function HasFolds()
+	"Attempt to move between folds, checking line numbers to see if it worked.
+	"If it did, there are folds.
+	
+	function! HasFoldsInner()
+		let origline=line('.')	
+		:norm zk
+		if origline==line('.')
+			:norm zj
+			if origline==line('.')
+				return 0
+			else
+				return 1
+			endif
+		else
+			return 1
+		endif
+		return 0
+	endfunction
+
+	set visualbell t_vb= "disable error bell
+	let l:winview=winsaveview() "save window and cursor position
+	let foldsexist=HasFoldsInner()
+	if foldsexist
+		set foldcolumn=1
+	else
+		"Move to the end of the current fold and check again in case the
+		"cursor was on the sole fold in the file when we checked
+		if line('.')!=1
+			:norm [z
+			:norm k
+		else
+			:norm ]z
+			:norm j
+		endif
+		let foldsexist=HasFoldsInner()
+		if foldsexist
+			set foldcolumn=1
+		else
+			set foldcolumn=0
+		endif
+	end
+	call winrestview(l:winview) "restore window/cursor position
+	set visualbell& t_vb& "return error bells to defaults
+endfunction
+au CursorHold,BufWinEnter ?* call HasFolds()
