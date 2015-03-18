@@ -178,6 +178,10 @@ function mkcd {
 	mkdir -p "$1" && cd "$1";
 }
 #
+# Remove duplicate lines in a file without changing line order (keeps first occurence)
+function remove_duplicate_lines {
+	awk '!a[$0]++' $1 > .rdltmp && mv .rdltmp $1 
+}
 # Pulled this out into it's own file and sourced that
 #function follow {
 	#Need to make this work when follow is used as such: [command with destination]; follow; [command]
@@ -280,6 +284,14 @@ function sym-cd {
 	else 
 		cd `dirname "$dest"`
 	fi
+}
+#
+# Use all 5 format modes for figlet
+function figtree {
+	for mode in {-s,-S,-k,-o,-W}; do
+		echo $mode
+		figlet $m $@
+	done	
 }
 
 
