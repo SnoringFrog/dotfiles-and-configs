@@ -21,6 +21,7 @@ Plugin 'rbonvall/vim-textobj-latex' " LaTeX text objects; requires kana/vim-text
 Plugin 'scrooloose/nerdcommenter' " Simpler commenting
 Plugin 'gregsexton/MatchTag' " Highlights matching HTMl/XML tags when cursor is on a tag
 Plugin 'jiangmiao/auto-pairs' " Automatically insert matching (), {}, etc.
+Plugin 'mhinz/vim-startify' "Vim splash screen showing recently edited files
 
 " Vim scripts
 Plugin 'vim-scripts/matchparenpp' " Echo line of matching (), {}, etc
@@ -168,7 +169,8 @@ set hidden "Hide buffers instead of closing them
 set undolevels=2500 "Allow more levels of undo
 set title "Change the terminal's title
 
-set splitbelow "when splitting, put new window below current window 
+set splitright "when splitting horizontally, put new window on right
+set splitbelow "when splitting vertically, put new window below current window 
 
 if has('statusline')
 	if version >= 700
@@ -376,3 +378,35 @@ function HasFolds()
 	set visualbell& t_vb& "return error bells to defaults
 endfunction
 au CursorHold,BufWinEnter ?* call HasFolds()
+
+" Vim-Startify config
+let g:startify_list_order = [
+	\ ['   Recent files:'],
+	\ 'files',
+	\ ['   Recent files (this dir):'],
+	\ 'dir',
+	\ ['   Sessions:'],
+	\ 'sessions',
+	\ ['   Bookmarks:'],
+	\ 'bookmarks',
+	\ ]
+
+let g:startify_bookmarks = ['~/.vimrc', '~/.bashrc', '~/.config/fish/config.fish']
+let g:startify_custom_header = 
+	\ map(split(system('figlet "vim-startify"'), '\n'), '"   ". v:val') + ['','']
+
+let g:startify_skiplist = [
+	\ 'COMMIT_EDITMSG',
+	\ $VIMRUNTIME .'/doc',
+	\ 'bundle/.*/doc',
+	\ '\.DS_Store'
+	\ ]
+
+let g:startify_custom_indices = ['a', 'n', '']
+" End Vim-Startify config
+
+" Paste in paste mode (prevents crazy indent issues)
+nnoremap <leader>p :set paste<CR>o<esc>"+]p:set nopaste<cr>
+
+" Close current buffer
+nnoremap <leader>b :bd<CR>
