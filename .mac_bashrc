@@ -26,6 +26,7 @@ defaults write com.apple.Safari AutoOpenSafeDownloads -bool false
 # Enable “focus follows mouse” for Terminal.app and all X11 apps
 # i.e. hover over a window and start typing in it without clicking first
 defaults write com.apple.terminal FocusFollowsMouse -bool true
+defaults write com.googlecode.iterm2 FocusFollowsMouse -bool true
 defaults write org.x.X11 wm_ffm -bool true
 
 # Don’t display the annoying prompt when quitting iTerm
@@ -47,8 +48,10 @@ alias pumpitup="osascript -e 'set volume 7'"
 alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
 # /end github.com/mathiasbynens
 
-# Need to update to a single if to check for gnu-coreutils and bring in all my aliases if that's available
+#Simulate tac
+alias tac='tail -r'
 
+# Need to update to a single if to check for gnu-coreutils and bring in all my aliases if that's available
 #Use GNU realpath (GNU coreutils only; didn't use an if block b/c there is no BSD realpath)
 alias realpath='grealpath'
 
@@ -133,3 +136,43 @@ stderred_lib="${HOME}/usr/share/stderred/libstderred.dylib"
 if [ -f "$stderred_lib" ]; then
 	alias stderred="DYLD_INSERT_LIBRARIES=$stderred_lib\${DYLD_INSERT_LIBRARIES:+:\$DYLD_INSERT_LIBRARIES}"
 fi
+
+# Open new Terminal tabs from the command line
+#
+# Author: Justin Hileman (http://justinhileman.com)
+#
+# Installation:
+#     Add the following function to your `.bashrc` or `.bash_profile`,
+#     or save it somewhere (e.g. `~/.tab.bash`) and source it in `.bashrc`
+#
+# Usage:
+#     tab                   Opens the current directory in a new tab
+#     tab [PATH]            Open PATH in a new tab
+#     tab [CMD]             Open a new tab and execute CMD
+#     tab [PATH] [CMD] ...  You can prob'ly guess
+
+function tab () {
+	local cmd=""
+	local cdto="$PWD"
+	local args="$@"
+
+	if [ -d "$1"  ]; then
+		cdto=`cd "$1"; pwd`
+		args="${@:2}"
+	fi
+
+	if [ -n "$args"  ]; then
+		cmd="; $args"
+	fi
+
+	osascript &>/dev/null <<EOF
+		tell application "iTerm"
+			tell current terminal
+				launch session "Default Session"
+				tell the last session
+					write text "cd \"$cdto\"$cmd"
+				end tell
+			end tell
+		end tell
+EOF
+}
