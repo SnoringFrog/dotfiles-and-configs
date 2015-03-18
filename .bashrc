@@ -182,6 +182,16 @@ function mkcd {
 function remove_duplicate_lines {
 	awk '!a[$0]++' $1 > .rdltmp && mv .rdltmp $1 
 }
+#
+# Map g to git status and g <arg> to git <arg>
+function g {
+	if [[ $# > 0  ]]; then
+		git $@
+	else
+		git status
+	fi
+}
+#
 # Pulled this out into it's own file and sourced that
 #function follow {
 	#Need to make this work when follow is used as such: [command with destination]; follow; [command]
