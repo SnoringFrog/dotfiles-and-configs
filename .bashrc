@@ -95,6 +95,8 @@ alias ...='cd ../..'
 alias mkdir='mkdir -pv' #mkdir always creates intermediate directories and tells us about it
 # alias touchallthethings='find / -exec touch {} \;' #Touch EVERYTHING
 #
+alias sl='sl -a' #make the experience of typing 'ls' incorrectly as traumatic as possible
+
 # Enable stderred (use before command to make stderr red), if it's installed
 stderred_lib="${HOME}/usr/share/stderred/build/libstderred.so"
 if [ -f "$stderred_lib" ]; then
