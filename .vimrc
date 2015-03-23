@@ -177,7 +177,8 @@ if has('statusline')
 		" Fancy status line.
 		set statusline =
 		set statusline+=%n								   " buffer number
-		set statusline+=%{'/'.bufnr('$')}\                 " buffer count
+		set statusline+=%{'/'.len(filter(range(1,bufnr('$')),'buflisted(v:val)'))} " open/listed buffers
+		set statusline+=%{'/'.bufnr('$')}\                 " total buffers
 		set statusline+=%f%m\                              " file name and modified flag
 		set statusline+=(%{strlen(&ft)?&ft:'none'})		   " file type
 		set statusline+=%=								   " indent right
@@ -402,7 +403,7 @@ let g:startify_skiplist = [
 	\ '\.DS_Store'
 	\ ]
 
-let g:startify_custom_indices = ['a', 'n', '']
+let g:startify_custom_indices = ['a', 'n', 'o']
 " End Vim-Startify config
 
 " Paste in paste mode (prevents crazy indent issues)
@@ -410,3 +411,51 @@ nnoremap <leader>p :set paste<CR>o<esc>"+]p:set nopaste<cr>
 
 " Close current buffer
 nnoremap <leader>b :bd<CR>
+
+" Write all buffers
+command W bufdo w
+
+" Like windo but restore the current window.
+function! WinDo(command)
+  let currwin=winnr()
+  execute 'windo ' . a:command
+  execute currwin . 'wincmd w'
+endfunction
+com! -nargs=+ -complete=command Windo call WinDo(<q-args>)
+
+" Like bufdo but restore the current buffer.
+function! BufDo(command)
+  let currBuff=bufnr("%")
+  execute 'bufdo ' . a:command
+  execute 'buffer ' . currBuff
+endfunction
+com! -nargs=+ -complete=command Bufdo call BufDo(<q-args>)
+
+" Like tabdo but restore the current tab.
+function! TabDo(command)
+  let currTab=tabpagenr()
+  execute 'tabdo ' . a:command
+  execute 'tabn ' . currTab
+endfunction
+com! -nargs=+ -complete=command Tabdo call TabDo(<q-args>)
+
+" Bash like keys for the command line
+cnoremap <C-A>      <Home>
+cnoremap <C-E>      <End>
+cnoremap <C-K>      <C-U>
+
+" Insert blank line in normal mode
+noremap <Enter> o<ESC>
+noremap <S-Enter> O<ESC>
+
+" Smart way to move btw. windows
+map <C-j> <C-W>j
+map <C-k> <C-W>k
+map <C-h> <C-W>h
+map <C-l> <C-W>l
+
+" uppercase / lowercase convert (LC/UC = first letter, lc/uc = whole word)
+nmap <leader>LC mQgewvu`Q
+nmap <leader>UC mQgewvU`Q
+nmap <leader>lc mQviwu`Q
+nmap <leader>uc mQviwU`Q 
