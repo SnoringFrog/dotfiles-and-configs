@@ -67,7 +67,7 @@ fi
 #
 # Safe(r) rm/cp/mv
 alias rm='rm -i'
-alias cp='cp -i'
+alias cp='cp -iR'
 alias mv='mv -i'
 #
 # Default to human readable figures
