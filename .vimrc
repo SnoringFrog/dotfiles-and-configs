@@ -445,8 +445,9 @@ cnoremap <C-E>      <End>
 cnoremap <C-K>      <C-U>
 
 " Insert blank line in normal mode
-noremap <Enter> o<ESC>
-noremap <S-Enter> O<ESC>
+" Disabled because it doesn't work well with AutoComplPop
+"noremap <Enter> o<ESC>
+"noremap <S-Enter> O<ESC>
 
 " Smart way to move btw. windows
 map <C-j> <C-W>j
