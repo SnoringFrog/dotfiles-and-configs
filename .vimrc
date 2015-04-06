@@ -445,9 +445,8 @@ cnoremap <C-E>      <End>
 cnoremap <C-K>      <C-U>
 
 " Insert blank line in normal mode
-" Disabled because it doesn't work well with AutoComplPop
-"noremap <Enter> o<ESC>
-"noremap <S-Enter> O<ESC>
+noremap <Enter> o<ESC>
+noremap <S-Enter> O<ESC>
 
 " Smart way to move btw. windows
 map <C-j> <C-W>j
@@ -460,3 +459,9 @@ nmap <leader>LC mQgewvu`Q
 nmap <leader>UC mQgewvU`Q
 nmap <leader>lc mQviwu`Q
 nmap <leader>uc mQviwU`Q 
+
+" Y yanks to end of line (like D and C)
+noremap Y y$
+
+set wildmenu
+set wildmode=list,full
