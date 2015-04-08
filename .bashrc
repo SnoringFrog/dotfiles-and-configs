@@ -97,6 +97,9 @@ alias mkdir='mkdir -pv' #mkdir always creates intermediate directories and tells
 #
 alias sl='sl -a' #make the experience of typing 'ls' incorrectly as traumatic as possible
 
+# Make cd select folders in $HOME if not found in current
+export CDPATH=".:$HOME"
+
 # Enable stderred (use before command to make stderr red), if it's installed
 stderred_lib="${HOME}/usr/share/stderred/build/libstderred.so"
 if [ -f "$stderred_lib" ]; then
@@ -116,6 +119,19 @@ fi
 if [ -f "${HOME}/.bash_functions" ]; then
   source "${HOME}/.bash_functions"
 fi
+#
+# change directories and print contents
+cdls (){
+	cd "$@" && pwd && ls
+}
+#
+# Get external ip via www.icanhazip.com
+eip() {
+	wget -q -O - www.icanhazip.com
+	if [ $? -ne 0 ]; then
+		echo "Error connecting to internet";
+	fi
+}
 #
 # This function defines a 'cd' replacement function capable of keeping, 
 # displaying and accessing history of visited directories, up to 10 entries.
@@ -177,7 +193,7 @@ fi
 #
 # Create a directory and cd into it
 function mkcd {
-	mkdir -p "$1" && cd "$1";
+	mkdir -p "$@" && cd "$@";
 }
 #
 # Remove duplicate lines in a file without changing line order (keeps first occurence)
@@ -305,7 +321,12 @@ function figtree {
 		figlet $m $@
 	done	
 }
-
+#
+# Random fortune for commit message
+# http://www.reddit.com/r/archlinux/comments/26is44/alias_yoloyaourt_syyuua_devel_noconfirm/
+function yolo-commit() {
+	git commit -am "$(fortune)"
+}
 
 # Environment-specific rc's
 #TODO: more efficient loading of custom rcs, loop of some sort (through usr/rcs?)
