@@ -181,3 +181,7 @@ function tab () {
 		end tell
 EOF
 }
+
+function findlinks {
+	find "$1"  -inum "$(ls -i ${2} | cut -d' ' -f 1)" 2>/dev/null
+}

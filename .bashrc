@@ -210,6 +210,11 @@ function g {
 	fi
 }
 #
+# Find all hard and soft links for a particular file
+function findlinks {
+	find "$1" -L -samefile "$2" -exec ls -li {} \; 2>/dev/null
+}
+#
 # Pulled this out into it's own file and sourced that
 #function follow {
 	#Need to make this work when follow is used as such: [command with destination]; follow; [command]
@@ -328,24 +333,6 @@ function yolo-commit() {
 	git commit -am "$(fortune)"
 }
 
-# Environment-specific rc's
-#TODO: more efficient loading of custom rcs, loop of some sort (through usr/rcs?)
-env_specific_rc_dir="${HOME}"
-
-# Genworth-specific bashrc
-genworthrc=".genworth_bashrc"
-if [ -f "$env_specific_rc_dir/$genworthrc" ] ; then
-  source "$env_specific_rc_dir/$genworthrc"
-fi
-
-# Mac-specific bashrc
-#NOTE: should be loaded after aliases so ls is defined properly
-macrc=".mac_bashrc"
-if [ -f "$env_specific_rc_dir/$macrc" ] ; then
-  source "$env_specific_rc_dir/$macrc"
-fi
-
-
 # Customize prompt
 # Requires .git-prompt.sh to be sourced, appends current branch to prompt. Causes no issues if command isn't available
 # Blank line, user@host (green), space, current directory (yellow/brown), current git branch (cyan), newline, dollar sign, space
@@ -392,3 +379,20 @@ export LESS_TERMCAP_us=$'\E[01;32m'
 #	Helpful for Mac: https://wincent.com/wiki/Installing_GNU_Source-highlight_on_Mac_OS_X_10.6.7_Snow_Leopard
 export LESSOPEN="| /usr/local/bin/src-hilite-lesspipe.sh %s"
 export LESS=' -R '
+
+# Environment-specific rc's
+#TODO: more efficient loading of custom rcs, loop of some sort (through usr/rcs?)
+env_specific_rc_dir="${HOME}"
+
+# Mac-specific bashrc
+#NOTE: should be loaded after aliases so ls is defined properly
+macrc=".mac_bashrc"
+if [ -f "$env_specific_rc_dir/$macrc" ] ; then
+  source "$env_specific_rc_dir/$macrc"
+fi
+
+# Genworth-specific bashrc
+genworthrc=".genworth_bashrc"
+if [ -f "$env_specific_rc_dir/$genworthrc" ] ; then
+  source "$env_specific_rc_dir/$genworthrc"
+fi
