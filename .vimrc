@@ -300,7 +300,9 @@ nnoremap <leader>[ viw<esc>a]<esc>hbi[<esc>lel
 nnoremap <leader>] viw<esc>a]<esc>hbi[<esc>lel
 nnoremap <leader>{ viw<esc>a}<esc>hbi{<esc>lel
 nnoremap <leader>} viw<esc>a}<esc>hbi{<esc>lel
-nnoremap <leader><leader>} viw<esc>a{<esc>hbi}<esc>lel
+
+"For bash style variables ($var)
+nnoremap <leader>"" viw<esc>a"<esc>hbi"<esc>lelBxp 
 
 augroup filetype_latex
    autocmd!
@@ -326,12 +328,10 @@ augroup filetype_vim
 	au FileType vim let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'", "`":"`"} 
 augroup END "Vim
 
-
 " github.com/mathiasbynens/dotfiles
 " Enable per-directory .vimrc files and disable unsafe commands in them
 set exrc
 set secure
-
 
 function HasFolds()
 	"Attempt to move between folds, checking line numbers to see if it worked.

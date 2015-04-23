@@ -185,3 +185,9 @@ EOF
 function findlinks {
 	find "$1"  -inum "$(ls -i ${2} | cut -d' ' -f 1)" 2>/dev/null
 }
+
+# Needs this to overwrite the old version that uses the wrong alias
+cdls (){
+	cd "$@"
+	ls
+}

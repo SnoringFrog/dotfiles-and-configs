@@ -122,7 +122,8 @@ fi
 #
 # change directories and print contents
 cdls (){
-	cd "$@" && pwd && ls
+	cd "$@"
+	ls
 }
 #
 # Get external ip via www.icanhazip.com
