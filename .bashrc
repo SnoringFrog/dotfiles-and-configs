@@ -41,6 +41,9 @@ shopt -s extglob
 # Any completions you add in ~/.bash_completion are sourced last.
 # [[ -f /etc/bash_completion ]] && . /etc/bash_completion
 
+# Use vim
+export EDITOR=vim
+
 # History Options
 #
 # Don't put duplicate lines in the history.
@@ -52,7 +55,7 @@ export HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredup
 export HISTIGNORE=$'[ \t]*:&:[fb]g:exit'
 #
 # Whenever displaying the prompt, write the previous line to disk
-# export PROMPT_COMMAND="history -a"
+export PROMPT_COMMAND="history -a"
 #
 # Bigger history file
 export HISTSIZE=10000
@@ -80,6 +83,8 @@ alias whence='type -a'                        # locate all executables of a give
 alias grep='grep --color'                     # show differences in colour
 alias egrep='egrep --color=auto'              # show differences in colour
 alias fgrep='fgrep --color=auto'              # show differences in colour
+alias diff='diff -s'						  # say when files are identical
+alias crontab="VIM_CRONTAB=true crontab"	  # fix "temp file must be edited in place" error with crontab/vim
 #
 # Directory listings
 # alias dir='ls --color=auto --format=vertical'
@@ -92,6 +97,7 @@ alias ls='ls -hAF --color --group-directories-first' #human readable, dotfiles, 
 #
 alias ..='cd ..'
 alias ...='cd ../..'
+alias bd='. bd -s'
 alias mkdir='mkdir -pv' #mkdir always creates intermediate directories and tells us about it
 # alias touchallthethings='find / -exec touch {} \;' #Touch EVERYTHING
 #
@@ -133,6 +139,21 @@ eip() {
 		echo "Error connecting to internet";
 	fi
 }
+#
+# Create a quick, timestamped backup of a file
+backup() {
+	local extension
+	extension=$(date +".bu-%Y%m%d-%H%M")
+	cp "$1" "$1$extension"
+}
+#
+# Set up recycle command if recycle bin exists
+RECYCLE_BIN="${HOME}/recycle_bin"
+if [ -d "$RECYCLE_BIN" ]; then
+	function recycle () {
+		mv "$@" "$RECYCLE_BIN"
+	}
+fi
 #
 # This function defines a 'cd' replacement function capable of keeping, 
 # displaying and accessing history of visited directories, up to 10 entries.
@@ -202,6 +223,11 @@ function remove_duplicate_lines {
 	awk '!a[$0]++' $1 > .rdltmp && mv .rdltmp $1 
 }
 #
+# Needs to appear before g function (I think)
+if hash hub 2>/dev/null; then
+	alias git='hub'
+fi
+#
 # Map g to git status and g <arg> to git <arg>
 function g {
 	if [[ $# > 0  ]]; then
@@ -214,6 +240,30 @@ function g {
 # Find all hard and soft links for a particular file
 function findlinks {
 	find "$1" -L -samefile "$2" -exec ls -li {} \; 2>/dev/null
+}
+#
+# Copy single source file into multiple directories
+function distribute {
+	arguments=""
+	destinations=""
+	sourcefile=""
+	while [[ $# -ge 1 ]]; do
+		key="$1"
+
+		if [[ "$key" == "-h" ]]; then
+			echo "usage $0 [flags to cp] source_file destination_1 [... destination_N]"
+		elif [[ "$key" == -* ]]; then
+			arguments+=" $key"
+		elif [ -z "$sourcefile" ]; then
+			sourcefile="$key"
+		else
+			destinations+=" $key"
+		fi
+
+		shift
+	done
+
+	echo $destinations | xargs -n 1 cp $arguments $sourcefile	
 }
 #
 # Pulled this out into it's own file and sourced that
@@ -311,7 +361,7 @@ function changePS1 {
 }
 #
 # Follow symlink (to file or directory)
-function sym-cd {
+function symcd {
 	dest=`realpath $1`
 	if [[ -d ""$dest"" ]]; then
 		cd "$dest"
@@ -331,16 +381,37 @@ function figtree {
 # Random fortune for commit message
 # http://www.reddit.com/r/archlinux/comments/26is44/alias_yoloyaourt_syyuua_devel_noconfirm/
 function yolo-commit() {
-	git commit -am "$(fortune)"
+	git commit -am "$(fortune -s)"
+}
+#
+# Pull a random commit from whatthecommit.com
+function whatthecommit(){
+	curl whatthecommit.com/index.txt
 }
 
 # Customize prompt
 # Requires .git-prompt.sh to be sourced, appends current branch to prompt. Causes no issues if command isn't available
 # Blank line, user@host (green), space, current directory (yellow/brown), current git branch (cyan), newline, dollar sign, space
-PS1='\n\e[0;32m\u@\h\e[m \e[0;33m\w\e[m\e[0;36m$(__git_ps1 2>/dev/null)\e[m\n\$ ' 
+#PS1='\n\e[0;32m\u@\h\e[m \e[0;33m\w\e[m\e[0;36m\$(__git_ps1 2>/dev/null)\e[m\n\$ ' 
 #Sets title bar to current directory
-PS1="\[\033]0;\w\007\]"${PS1} 
+#PS1="\[\033]0;\w\007\]"${PS1} 
+
+#PS1="\n\[\e[0;34m\]┌─[\[\e[0m\]\[\e[0;32m\]\u@\h\[\e[0m\]\[\e[0;34m\]] \[\e[0m\]\[\e[0;33m\]\w\[\e[0m\]\e[0;31m\]\$(__git_ps1 2>/dev/null)\[\e[0m\]\n\[\e[0;34m\]└─[\[\e[0m\]\[\e[1;37m\]$\[\e[0m\]\[\e[0;34m\]]› \[\e[0m\]"
+
+PS1="\n\[\e[0;34m\]┌─[\[\e[0m\]\[\e[0;32m\]\u@\h\[\e[0m\]\[\e[0;34m\]] \[\e[0m\]\[\e[0;33m\]\w\[\e[0m\]\e[0;31m\]\$(__git_ps1 2>/dev/null)\[\e[0m\]\n\[\e[0;34m\]└─[\[\e[0m\]\[\e[1;37m\]\$ ︻デ═━\[\e[0;31m\]☆ﾟ\[\e[0m\]\[\e[0;34m\]› \[\e[0m\]"
 export PS1
+
+# Fun things to add to prompt:
+# Wizard: (∩｀-´)⊃━☆ﾟ.*･｡ﾟ
+# Guns: ︻デ═一 ⌐╦╦═─ ︻デ═━☆ﾟ
+# Hadoken: ༼つಠ益ಠ༽つ ─=≡ΣO))
+# Zombie: [¬º-°]¬
+# Running away: ε＝ε＝ε＝┌(;ﾟдﾟ)┘
+# Pipe smoking: (ಠ_ಠ)ᓄ°°
+# Bow and arrow: (´･ω･)~[}  »━>
+#				(‘∀`)~[} »━☆ﾟ
+# NES controller: [+..••]
+#︻デ═━☆ﾟ
 
 # Current directory in window title (not working on Mac? maybe not at all, need to test)
 # export PROMPT_COMMAND='echo -ne "\033]0;$PWD\007"'
@@ -348,8 +419,9 @@ export PS1
 
 # Misc
 #Use colordiff instead of diff, if it's available
+# Also output explicitly when files are identical
 if hash colordiff 2>/dev/null; then
-	alias diff='colordiff'
+	alias diff='colordiff -s'
 fi
 
 #Who doesn't want fortunes from a cow?
@@ -379,7 +451,7 @@ export LESS_TERMCAP_us=$'\E[01;32m'
 #	which in turn requires boost (http://www.boost.org/)
 #	Helpful for Mac: https://wincent.com/wiki/Installing_GNU_Source-highlight_on_Mac_OS_X_10.6.7_Snow_Leopard
 export LESSOPEN="| /usr/local/bin/src-hilite-lesspipe.sh %s"
-export LESS=' -R '
+export LESS=' -R -i-P%f (%i/%m) Page %db/%D'
 
 # Environment-specific rc's
 #TODO: more efficient loading of custom rcs, loop of some sort (through usr/rcs?)

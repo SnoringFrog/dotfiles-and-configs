@@ -59,7 +59,7 @@ if hash fish 2>/dev/null; then
 		if [ `uname -s` == "Darwin" ]; then tab; exit; fi
 	elif [[ `date +%w` -ne 5 && "$SHELL" == *"fish"* ]]; then
 		echo "Not Friday, but fish is still the default shell. Let's fix that."
-		chsh -s /bin/bash
+		chsh -s /usr/local/bin/bash
 	fi
 fi	
 
@@ -75,3 +75,12 @@ export FIGNORE=DS_Store
 # The orginal version is saved in .bash_profile.pysave
 PATH="/Library/Frameworks/Python.framework/Versions/3.4/bin:${PATH}"
 export PATH
+
+##
+# Your previous /Users/430011037/.bash_profile file was backed up as /Users/430011037/.bash_profile.macports-saved_2015-07-27_at_11:21:54
+##
+
+# MacPorts Installer addition on 2015-07-27_at_11:21:54: adding an appropriate PATH variable for use with MacPorts.
+export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
+# Finished adapting your PATH environment variable for use with MacPorts.
+

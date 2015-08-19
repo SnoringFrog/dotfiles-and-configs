@@ -22,6 +22,7 @@ Plugin 'scrooloose/nerdcommenter' " Simpler commenting
 Plugin 'gregsexton/MatchTag' " Highlights matching HTMl/XML tags when cursor is on a tag
 Plugin 'jiangmiao/auto-pairs' " Automatically insert matching (), {}, etc.
 Plugin 'mhinz/vim-startify' "Vim splash screen showing recently edited files
+Plugin 'benmills/vimux' "Better vim/tmux interaction
 
 " Vim scripts
 Plugin 'vim-scripts/matchparenpp' " Echo line of matching (), {}, etc
@@ -30,14 +31,35 @@ Plugin 'vim-scripts/AutoComplPop' " Autocomplete popup suggestions
 call vundle#end()
 filetype plugin indent on
 
-
 " Vim needs a more POSIX compatible shell, fish is not one
 if &shell =~# 'fish$'
 	set shell=sh
 endif
 
-" allow backspacing over everything in insert mode
-set backspace=indent,eol,start
+if !has('nvim')
+	set backspace=indent,eol,start	"allow backspacing over everything in insert mode
+	set history=10000	"keep x lines of command line history
+	set hlsearch	"highlight last used search pattern
+	set incsearch		" do incremental searching
+	set wildmenu
+
+	" Enabling the mouse for:
+	" n = Normal mode
+	" v = Visual mode
+	" i = Insert mode
+	" c = Command Line mode
+	" h = all of the above (when editing a help file)
+	" a = all of the above
+	" r = left-click works for 'press enter' type prompts
+	if has('mouse')
+		"set mouse=vic " Stops clicking window to regain focus from moving cursor most of the time
+		set mouse=a
+	endif
+endif
+
+if has('nvim')
+	let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
+endif
 
 if has("vms")
   set nobackup		" do not keep a backup file, use versions instead
@@ -45,13 +67,13 @@ else
   set backup		" keep a backup file (restore to previous version)
   set undofile		" keep an undo file (undo changes after closing)
 endif
-set history=100		" keep 100 lines of command line history
+
 set ruler		" show the cursor position all the time
 "set rulerformat=%l/%L,%c%V%=%P
 set rulerformat=%l/%L,%c%V%=%P           " position
 set showcmd		" display incomplete commands
 set showmode	" Show current mode
-set incsearch		" do incremental searching
+set wildmode=list,full
 			
 " For Win32 GUI: remove 't' flag from 'guioptions': no tearoff menu entries
 " let &guioptions = substitute(&guioptions, "t", "", "g")
@@ -64,24 +86,9 @@ inoremap <C-U> <C-G>u<C-U>
 inoremap <C-u> <C-g>u<C-u>
 inoremap <C-w> <C-g>u<c-w>
 
-" In many terminal emulators the mouse works just fine, thus enable it.
-" n = Normal mode
-" v = Visual mode
-" i = Insert mode
-" c = Command Line mode
-" h = all of the above (when editing a help file)
-" a = all of the above
-" r = left-click works for 'press enter' type prompts
-if has('mouse')
-  "set mouse=vic " Stops clicking window to regain focus from moving cursor most of the time
-  set mouse=a
-endif
-
 " Switch syntax highlighting on, when the terminal has colors
-" Also switch on highlighting the last used search pattern.
 if &t_Co > 2 || has("gui_running")
   syntax on
-  set hlsearch
 endif
 
 " Only do this part when compiled with support for autocommands.
@@ -172,6 +179,12 @@ set title "Change the terminal's title
 set splitright "when splitting horizontally, put new window on right
 set splitbelow "when splitting vertically, put new window below current window 
 
+" Fix 'temp file must be edited in place' error with crontab
+if $VIM_CRONTAB == "true"
+	set nobackup
+	set nowritebackup
+endif
+
 if has('statusline')
 	if version >= 700
 		" Fancy status line.
@@ -255,8 +268,9 @@ autocmd FileType python set omnifunc=python3complete#Complete
 "(.jar, .war removed because they were being opened twice per browser for some reason)
  au BufReadCmd *.ear,*.sar,*.rar,*.sublime-package,*.xpi call zip#Browse(expand("<amatch>"))
 
- "Enable line numbers by default
- set nu
+ "Show absolute line number for current line and relative line numbers otherwise
+ set number
+ set relativenumber
 
 "Press space in normal mode to toggle a fold; otherwise do default behavior
  nnoremap <silent> <Space> @=(foldlevel('.')?'za':"\<Space>")<CR>
@@ -265,8 +279,8 @@ autocmd FileType python set omnifunc=python3complete#Complete
  vnoremap <Space> zf
 
 "Make saving/restoring folds automatic
- au BufWritePost,BufLeave,WinLeave ?* mkview
- au BufWinEnter ?* silent loadview
+ au BufWritePost,BufLeave,WinLeave ?* silent! mkview
+ au BufWinEnter ?* silent! loadview
 
  "Set matchpairs for commands like ci 
 set mps+=<:>
@@ -290,10 +304,36 @@ nnoremap <leader>d O<Esc>jddk
 nnoremap <leader>n :tabn<cr>
 nnoremap <leader>p :tabp<cr>
 
-"Wrap a word in double quotes, single quotes, backticks, parens, brackets, braces
-nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
-nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
-nnoremap <leader>` viw<esc>a`<esc>hbi`<esc>lel
+" define av/iv to select a bash variable:
+call textobj#user#plugin('bash', {
+        \  'avar': {
+        \   'pattern': '\$\?\w\+\>',
+        \   'select': [ 'aw'],
+        \  },
+        \  'var': {
+        \   'pattern': ['\${', '}'],
+        \   'select-i': [ 'iv'],
+        \   'select-a': [ 'av'],
+        \  },
+        \ })
+
+" Wrap a word in double quotes, single quotes, backticks, parens, brackets, braces
+" Uses a custom text object (requires kana/vim-textobj-user) to treat bash/php style $variables as a word
+" <M-p> needed to toggle off vim-scripts/matchparenpp if enabled (otherwise marks get duplicated)
+" AcpLock/AcpUnlock makes shortcut compatible with AutoComplPop
+" Because of my ; -> : mapping, have to start Acp commands with ;
+nmap <leader>" ;AcpLock<CR><M-p>vaw<esc>`>a"<esc>`<i"<esc>f"<M-p>;AcpUnlock<CR>
+nmap <leader>' ;AcpLock<CR><M-p>vaw<esc>`>a'<esc>`<i'<esc>f'<M-p>;AcpUnlock<CR>
+nmap <leader>` ;AcpLock<CR><M-p>vaw<esc>`>a`<esc>`<i`<esc>f`<M-p>;AcpUnlock<CR>
+"nmap <leader>( vaw<esc>`>a)<esc>`<i(<esc>f)
+"nmap <leader>) vaw<esc>`>a)<esc>`<i(<esc>f)
+"nmap <leader>[ vaw<esc>`>a]<esc>`<i[<esc>f]
+"nmap <leader>] vaw<esc>`>a]<esc>`<i[<esc>f]
+"nmap <leader>{ vaw<esc>`>a}<esc>`<i{<esc>f}
+"nmap <leader>} vaw<esc>`>a}<esc>`<i{<esc>f}
+"nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
+"nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
+"nnoremap <leader>` viw<esc>a`<esc>hbi`<esc>lel
 nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
 nnoremap <leader>) viw<esc>a)<esc>hbi(<esc>lel
 nnoremap <leader>[ viw<esc>a]<esc>hbi[<esc>lel
@@ -302,7 +342,7 @@ nnoremap <leader>{ viw<esc>a}<esc>hbi{<esc>lel
 nnoremap <leader>} viw<esc>a}<esc>hbi{<esc>lel
 
 "For bash style variables ($var)
-nnoremap <leader>"" viw<esc>a"<esc>hbi"<esc>lelBxp 
+"nnoremap <leader>"" viw<esc>a"<esc>hbi"<esc>lelBxp 
 
 augroup filetype_latex
    autocmd!
@@ -394,7 +434,7 @@ let g:startify_list_order = [
 
 let g:startify_bookmarks = ['~/.vimrc', '~/.bashrc', '~/.config/fish/config.fish']
 let g:startify_custom_header = 
-	\ map(split(system('figlet "vim-startify"'), '\n'), '"   ". v:val') + ['','']
+	\ map(split(system('figlet "vim-startify"'), '\n'), '"   ". v:val') + ['   Mark with [b] to open in buffer, [s] for split, [t] for tab.','']
 
 let g:startify_skiplist = [
 	\ 'COMMIT_EDITMSG',
@@ -445,8 +485,12 @@ cnoremap <C-E>      <End>
 cnoremap <C-K>      <C-U>
 
 " Insert blank line in normal mode
-noremap <Enter> o<ESC>
-noremap <S-Enter> O<ESC>
+nnoremap <cr> o<ESC>
+augroup enterNewline 
+	autocmd!
+	autocmd CmdwinEnter * nnoremap <CR> <CR>
+	autocmd BufReadPost quickfix nnoremap <CR> <CR>
+augroup END "enterNewline
 
 " Smart way to move btw. windows
 map <C-j> <C-W>j
@@ -463,5 +507,10 @@ nmap <leader>uc mQviwU`Q
 " Y yanks to end of line (like D and C)
 noremap Y y$
 
-set wildmenu
-set wildmode=list,full
+" vimux configs:
+" Run arbitrary command in pane
+nnoremap <leader>rp :VimuxPromptCommand<cr> 
+" Close runner pane
+nnoremap <leader>rq :VimuxCloseRunner<cr>
+" Focus runner pane (in copy mode)
+nnoremap <leader>ri :VimuxInspectRunner<cr>

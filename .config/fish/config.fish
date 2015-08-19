@@ -8,3 +8,6 @@ if test (date +%w) -ne 5
 			exit
 	end
 end
+
+# Set various environment variables
+set -Ux EDITOR vim
