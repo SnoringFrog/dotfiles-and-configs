@@ -23,6 +23,7 @@ Plugin 'gregsexton/MatchTag' " Highlights matching HTMl/XML tags when cursor is 
 Plugin 'jiangmiao/auto-pairs' " Automatically insert matching (), {}, etc.
 Plugin 'mhinz/vim-startify' "Vim splash screen showing recently edited files
 Plugin 'benmills/vimux' "Better vim/tmux interaction
+Plugin 'ktonga/vim-follow-my-lead' "Displays <Leader> mappings with descriptions with <leader>fml
 
 " Vim scripts
 Plugin 'vim-scripts/matchparenpp' " Echo line of matching (), {}, etc
@@ -42,7 +43,9 @@ if !has('nvim')
 	set hlsearch	"highlight last used search pattern
 	set incsearch		" do incremental searching
 	set wildmenu
+	"set clipboard=unnamed
 
+	
 	" Enabling the mouse for:
 	" n = Normal mode
 	" v = Visual mode
@@ -58,6 +61,7 @@ if !has('nvim')
 endif
 
 if has('nvim')
+	"let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 	let $NVIM_TUI_ENABLE_CURSOR_SHAPE=1
 endif
 
@@ -74,6 +78,7 @@ set rulerformat=%l/%L,%c%V%=%P           " position
 set showcmd		" display incomplete commands
 set showmode	" Show current mode
 set wildmode=list,full
+set whichwrap+=<,>,h,l,[,]
 			
 " For Win32 GUI: remove 't' flag from 'guioptions': no tearoff menu entries
 " let &guioptions = substitute(&guioptions, "t", "", "g")
@@ -102,7 +107,7 @@ if has("autocmd")
 
 	" Put these in an autocmd group, so that we can delete them easily.
 	augroup vimrcEx
-		au!
+		autocmd!
 
 		" For all text files set 'textwidth' to 78 characters.
 		"autocmd FileType text setlocal textwidth=78
@@ -144,7 +149,7 @@ nnoremap <silent> <C-k> O<Esc>
 "Pulled from internet
 set scrolloff=2 "Top cursor position is 2 lines from top/bottom of screen
 
-"Clear current search with ,/
+"Clear current search hilighting
 nnoremap <silent> ,/ :nohlsearch<CR> 
 
 "Going to next search result centers on the line the result is in
@@ -190,8 +195,8 @@ if has('statusline')
 		" Fancy status line.
 		set statusline =
 		set statusline+=%n								   " buffer number
-		set statusline+=%{'/'.len(filter(range(1,bufnr('$')),'buflisted(v:val)'))} " open/listed buffers
-		set statusline+=%{'/'.bufnr('$')}\                 " total buffers
+		set statusline+=%{'/'.len(filter(range(1,bufnr('$')),'buflisted(v:val)'))} " total open/listed buffers
+		set statusline+=%{'/'.bufnr('$')}\                 " highest numbered buffer (includes unlisted)
 		set statusline+=%f%m\                              " file name and modified flag
 		set statusline+=(%{strlen(&ft)?&ft:'none'})		   " file type
 		set statusline+=%=								   " indent right
@@ -262,11 +267,22 @@ command ToggleWhitespace call ToggleWhitespace()
 
 filetype plugin on
 set omnifunc=syntaxcomplete#Complete
-autocmd FileType python set omnifunc=python3complete#Complete
+augroup pythonAutoComplete
+	autocmd!
+	autocmd FileType python set omnifunc=pythoncomplete#Complete
+augroup END "pythonAutoComplete
 
-"Treat these filetypes as zip 
-"(.jar, .war removed because they were being opened twice per browser for some reason)
- au BufReadCmd *.ear,*.sar,*.rar,*.sublime-package,*.xpi call zip#Browse(expand("<amatch>"))
+augroup labyrinth
+	autocmd!
+	autocmd FileType labyrinth let b:AutoPairs = {}
+augroup END
+
+augroup treatAsZip
+	autocmd!
+	"Treat these filetypes as zip 
+	"(.jar, .war removed because they were being opened twice per browser for some reason)
+	au BufReadCmd *.ear,*.sar,*.rar,*.sublime-package,*.xpi call zip#Browse(expand("<amatch>"))
+augroup END
 
  "Show absolute line number for current line and relative line numbers otherwise
  set number
@@ -278,13 +294,20 @@ autocmd FileType python set omnifunc=python3complete#Complete
 "In visual mode, space creates a fold
  vnoremap <Space> zf
 
-"Make saving/restoring folds automatic
- au BufWritePost,BufLeave,WinLeave ?* silent! mkview
- au BufWinEnter ?* silent! loadview
-
- "Set matchpairs for commands like ci 
+ augroup saveFolds
+	 autocmd!
+	 "Make saving/restoring folds automatic
+	 au BufWritePost,BufLeave,WinLeave ?* silent! mkview
+	 au BufWinEnter ?* silent! loadview
+ augroup END "saveFolds
+ 
+ 
+"Set matchpairs for commands like ci 
 set mps+=<:>
-au FileType c,cpp,java set mps+==:; "c-style var assignments
+augroup matchPairs
+	autocmd!
+	au FileType c,cpp,java set mps+==:; "c-style var assignments
+augroup END "matchPairs
 
 let mapleader=","
 let maplocalleader="\\"
@@ -302,7 +325,7 @@ nnoremap <leader>d O<Esc>jddk
 
 "Change vim tabs
 nnoremap <leader>n :tabn<cr>
-nnoremap <leader>p :tabp<cr>
+"nnoremap <leader>p :tabp<cr>
 
 " define av/iv to select a bash variable:
 call textobj#user#plugin('bash', {
@@ -322,8 +345,12 @@ call textobj#user#plugin('bash', {
 " <M-p> needed to toggle off vim-scripts/matchparenpp if enabled (otherwise marks get duplicated)
 " AcpLock/AcpUnlock makes shortcut compatible with AutoComplPop
 " Because of my ; -> : mapping, have to start Acp commands with ;
+
+" Wrap a word in double quotes (bash/php vars treated as word)
 nmap <leader>" ;AcpLock<CR><M-p>vaw<esc>`>a"<esc>`<i"<esc>f"<M-p>;AcpUnlock<CR>
+" Wrap a word in single quotes (bash/php vars treated as word)
 nmap <leader>' ;AcpLock<CR><M-p>vaw<esc>`>a'<esc>`<i'<esc>f'<M-p>;AcpUnlock<CR>
+" Wrap a word in backticks (bash/php vars treated as word)
 nmap <leader>` ;AcpLock<CR><M-p>vaw<esc>`>a`<esc>`<i`<esc>f`<M-p>;AcpUnlock<CR>
 "nmap <leader>( vaw<esc>`>a)<esc>`<i(<esc>f)
 "nmap <leader>) vaw<esc>`>a)<esc>`<i(<esc>f)
@@ -334,11 +361,17 @@ nmap <leader>` ;AcpLock<CR><M-p>vaw<esc>`>a`<esc>`<i`<esc>f`<M-p>;AcpUnlock<CR>
 "nnoremap <leader>" viw<esc>a"<esc>hbi"<esc>lel
 "nnoremap <leader>' viw<esc>a'<esc>hbi'<esc>lel
 "nnoremap <leader>` viw<esc>a`<esc>hbi`<esc>lel
+" Wrap a word in parentheses
 nnoremap <leader>( viw<esc>a)<esc>hbi(<esc>lel
+" Wrap a word in parentheses
 nnoremap <leader>) viw<esc>a)<esc>hbi(<esc>lel
+" Wrap a word in brackets
 nnoremap <leader>[ viw<esc>a]<esc>hbi[<esc>lel
+" Wrap a word in brackets
 nnoremap <leader>] viw<esc>a]<esc>hbi[<esc>lel
+" Wrap a word in braces
 nnoremap <leader>{ viw<esc>a}<esc>hbi{<esc>lel
+" Wrap a word in braces
 nnoremap <leader>} viw<esc>a}<esc>hbi{<esc>lel
 
 "For bash style variables ($var)
@@ -347,26 +380,34 @@ nnoremap <leader>} viw<esc>a}<esc>hbi{<esc>lel
 augroup filetype_latex
    autocmd!
 	"add Latex quotes to matching pair highlighting   
-	au FileType tex,plaintex set mps+=`:' 
+	autocmd FileType tex,plaintex set mps+=`:' 
 
 	"Wrap a word in Latex style quotes
-	au FileType tex,plaintex nnoremap <leader>` viw<esc>a`<esc>hbi'<esc>lel
+	autocmd FileType tex,plaintex nnoremap <leader>` viw<esc>a`<esc>hbi'<esc>lel
 
 	"For autopairs plugin (disables backtick matching in favor of `')
-	au FileType tex,plaintex let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"', "`":"'"} 
+	autocmd FileType tex,plaintex let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'",'"':'"', "`":"'"} 
 
 	" Enable [y|d|c][a|q]['|"] for LaTeX quotes (Unecessary due to vim-textobject-latex plugin) 
-	"au FileType tex,plaintex onoremap a' :<c-u>normal! muF`vf'<cr>`u
-	"au FileType tex,plaintex onoremap i' :<c-u>normal! muT`vt'<cr>`u
-	"au FileType tex,plaintex onoremap a" :<c-u>normal! mu2F`v2f'<cr>`u
-	"au FileType tex,plaintex onoremap i" :<c-u>normal! mu2T`v2t'<cr>`u
+	"autocmd FileType tex,plaintex onoremap a' :<c-u>normal! muF`vf'<cr>`u
+	"autocmd FileType tex,plaintex onoremap i' :<c-u>normal! muT`vt'<cr>`u
+	"autocmd FileType tex,plaintex onoremap a" :<c-u>normal! mu2F`v2f'<cr>`u
+	"autocmd FileType tex,plaintex onoremap i" :<c-u>normal! mu2T`v2t'<cr>`u
 augroup END "Latex
 
 augroup filetype_vim
 	autocmd!
 	"Disable double quote pair completion from AutoPairs plugin
-	au FileType vim let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'", "`":"`"} 
+	autocmd FileType vim let g:AutoPairs = {'(':')', '[':']', '{':'}',"'":"'", "`":"`"} 
 augroup END "Vim
+
+augroup filetype_markdown
+	autocmd!
+	" Operator pending mappings to delete in/around headers
+	autocmd FileType markdown onoremap ih :<c-u>execute "normal! ?^[=-]\\{2,}$\r:nohlsearch\rkvg_"<cr>
+	autocmd FileType markdown onoremap ah :<c-u>execute "normal! ?^[=-]\\{2,}$\r:nohlsearch\rg_vk0"<cr>
+augroup END "Markdown
+
 
 " github.com/mathiasbynens/dotfiles
 " Enable per-directory .vimrc files and disable unsafe commands in them
@@ -418,7 +459,10 @@ function HasFolds()
 	call winrestview(l:winview) "restore window/cursor position
 	set visualbell& t_vb& "return error bells to defaults
 endfunction
-au CursorHold,BufWinEnter ?* call HasFolds()
+augroup hasFolds
+	autocmd!
+	autocmd CursorHold,BufWinEnter ?* call HasFolds()
+augroup END "hasFounds
 
 " Vim-Startify config
 let g:startify_list_order = [
@@ -444,13 +488,17 @@ let g:startify_skiplist = [
 	\ ]
 
 let g:startify_custom_indices = ['a', 'n', 'o']
+let g:startify_change_to_vcs_root = 1
+let g:startify_session_persistence = 1
 " End Vim-Startify config
 
-" Paste in paste mode (prevents crazy indent issues)
+" Paste from clipboard in paste mode (prevents crazy indent issues)
 nnoremap <leader>p :set paste<CR>o<esc>"+]p:set nopaste<cr>
 
 " Close current buffer
-nnoremap <leader>b :bd<CR>
+nnoremap <leader>bd :bd<CR>
+" Wipeout current buffer
+nnoremap <leader>bw :bw<CR>
 
 " Write all buffers
 command W bufdo w
@@ -498,19 +546,32 @@ map <C-k> <C-W>k
 map <C-h> <C-W>h
 map <C-l> <C-W>l
 
-" uppercase / lowercase convert (LC/UC = first letter, lc/uc = whole word)
-nmap <leader>LC mQgewvu`Q
-nmap <leader>UC mQgewvU`Q
-nmap <leader>lc mQviwu`Q
-nmap <leader>uc mQviwU`Q 
+" Convert word to lowercase
+nnoremap <leader>lc mqviwu`q
+" Convert word to uppercase
+nnoremap <leader>uc mqviwU`q 
+" Uncapitalize word
+nnoremap <leader>LC mqgewvu`q
+" Capitalize word
+nnoremap <leader>UC mqgewvU`q
 
 " Y yanks to end of line (like D and C)
 noremap Y y$
 
 " vimux configs:
-" Run arbitrary command in pane
+" Run arbitrary command in pane (vimux)
 nnoremap <leader>rp :VimuxPromptCommand<cr> 
-" Close runner pane
+" Close runner pane (vimux)
 nnoremap <leader>rq :VimuxCloseRunner<cr>
-" Focus runner pane (in copy mode)
+" Focus runner pane (in copy mode) (vimux)
 nnoremap <leader>ri :VimuxInspectRunner<cr>
+" End vimux configs
+
+augroup Mkdir
+	" When saving file to dir that does not exist yet, create the directory
+	autocmd!
+	autocmd BufWritePre *
+		\ if !isdirectory(expand("<afile>:p:h")) |
+			\ call mkdir(expand("<afile>:p:h"), "p") |
+		\ endif
+augroup END

@@ -41,11 +41,20 @@ fi
 
 #Fortune on startup (from a cow, if possible)
 if hash fortune 2>/dev/null; then
+	LASTFORTUNE=`fortune`
 	if hash cowsay 2>/dev/null; then
-		fortune | cowsay
+		if hash lolcat 2>/dev/null; then
+			echo "$LASTFORTUNE" | cowsay | lolcat 
+		else
+			echo "$LASTFORTUNE" | cowsay
+		fi
 		#need to include a random cow
 	else
-		fortune
+		if hash lolcat 2>/dev/null; then
+			echo "$LASTFORTUNE" | lolcat
+		else
+			echo "$LASTFORTUNE"
+		fi
 	fi
 fi
 
@@ -73,8 +82,8 @@ export FIGNORE=DS_Store
 
 # Setting PATH for Python 3.4
 # The orginal version is saved in .bash_profile.pysave
-PATH="/Library/Frameworks/Python.framework/Versions/3.4/bin:${PATH}"
-export PATH
+#PATH="/Library/Frameworks/Python.framework/Versions/3.4/bin:${PATH}"
+#export PATH
 
 ##
 # Your previous /Users/430011037/.bash_profile file was backed up as /Users/430011037/.bash_profile.macports-saved_2015-07-27_at_11:21:54

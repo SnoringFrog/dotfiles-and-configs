@@ -43,6 +43,14 @@ alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && k
 # Volume control
 alias stfu="osascript -e 'set volume output muted true'"
 alias pumpitup="osascript -e 'set volume 7'"
+function volume(){
+	if [ "$1" == "mute" ]; then
+		stfu 
+	else
+		osascript -e "set volume $1"
+	fi
+}
+alias vol=volume
 
 # Lock the screen (when going AFK)
 alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
@@ -61,6 +69,13 @@ if hash gls 2>/dev/null; then
 else
 	#If GNU ls (gls) isn't available, use this:
 	alias ls='ls -hAFG'
+fi
+
+# GNU cal: potentially confusing because of differences in how BSD and GNU treat a single argument
+#	GNU treats a lone <=12 as a month in the current year, anything else as a year
+#	BSD treats a lone argument as the year, and two args at month/year, respectively
+if hash gcal 2>/dev/null; then
+	alias cal='gcal'
 fi
  
 # Use GNU mkdir if available, otherwise emulate it

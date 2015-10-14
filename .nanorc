@@ -1,6 +1,6 @@
 set autoindent
 set backup
-set backupdir "~/.nano/syntax/backup/"
+set backupdir "~/.nano/backup/"
 set const
 set mouse
 set smarthome

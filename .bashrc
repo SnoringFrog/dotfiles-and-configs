@@ -61,6 +61,10 @@ export PROMPT_COMMAND="history -a"
 export HISTSIZE=10000
 export HISTFILESIZE=50000
 
+# Use auto-completion after the following commands:
+complete -cf sudo
+complete -cf man
+
 # Aliases
 #
 # Source external alias file, if available
@@ -154,6 +158,26 @@ if [ -d "$RECYCLE_BIN" ]; then
 		mv "$@" "$RECYCLE_BIN"
 	}
 fi
+#
+# Pwd, but report if there is a difference between physical and logical location
+#	maybe look into making this a builtin?
+pwdiligent(){
+	if [ "$1" == "-P" -o "$1" == "-L" ]; then
+		\pwd "$1"
+		return 0
+	fi
+	local logical
+	local physical
+	logical=`\pwd -L`
+	physical=`\pwd -P`
+	if [ "$physical" == "$logical" ]; then
+		pwd
+	else
+		echo "Logical: $logical"
+		echo "Physical: $physical"
+	fi
+}
+alias pwd='pwdiligent'
 #
 # This function defines a 'cd' replacement function capable of keeping, 
 # displaying and accessing history of visited directories, up to 10 entries.
@@ -251,7 +275,7 @@ function distribute {
 		key="$1"
 
 		if [[ "$key" == "-h" ]]; then
-			echo "usage $0 [flags to cp] source_file destination_1 [... destination_N]"
+			echo "usage: $0 [flags to cp] source_file destination_1 [... destination_N]"
 		elif [[ "$key" == -* ]]; then
 			arguments+=" $key"
 		elif [ -z "$sourcefile" ]; then
@@ -266,6 +290,24 @@ function distribute {
 	echo $destinations | xargs -n 1 cp $arguments $sourcefile	
 }
 #
+# Counts the total number of files and directories in the current directory (recursive)
+function fid {
+	# expand to include links as well
+	local filecount
+	local dircount
+	filecount=$(find . -type f | wc -l | tr -d '[[:space:]]')
+	dircount=$(find . -mindepth 1 -type d | wc -l | tr -d '[[:space:]]')
+	if [ "$filecount" -eq 1 ]; then
+		echo "$filecount file"
+	else 
+		echo "$filecount files"
+	fi
+	if [ "$dircount" -eq 1 ]; then
+		echo "$dircount directory"
+	else
+		echo "$dircount directories"
+	fi
+}
 # Pulled this out into it's own file and sourced that
 #function follow {
 	#Need to make this work when follow is used as such: [command with destination]; follow; [command]
@@ -426,7 +468,13 @@ fi
 
 #Who doesn't want fortunes from a cow?
 if (hash fortune 2>/dev/null) && (hash cowsay 2>/dev/null); then
-	alias forcow='fortune | cowsay'
+	function forcow(){
+		LASTFORTUNE=`fortune`
+		echo "$LASTFORTUNE" | cowsay
+		export LASTFORTUNE
+	}
+	alias forcow=forcow
+	#alias forcow='fortune | cowsay'
 fi
 
 #START:todo.txt/todo.sh 
@@ -438,19 +486,25 @@ fi
 #END:todo.txt/todo.sh
 
 ## Colored manpages (from: https://github.com/Arkham/dotfiles/blob/master/bashrc)
-export LESS_TERMCAP_mb=$'\E[01;31m'
-export LESS_TERMCAP_md=$'\E[01;31m'
-export LESS_TERMCAP_me=$'\E[0m'
-export LESS_TERMCAP_se=$'\E[0m'
-export LESS_TERMCAP_so=$'\E[01;44;33m'
-export LESS_TERMCAP_ue=$'\E[0m'
-export LESS_TERMCAP_us=$'\E[01;32m'
+export LESS_TERMCAP_mb=$'\E[01;31m'		# begin blinking
+export LESS_TERMCAP_md=$'\E[01;31m'		# begin bold	
+export LESS_TERMCAP_me=$'\E[0m'			# end mode
+export LESS_TERMCAP_se=$'\E[0m'			# end standout-mode
+#export LESS_TERMCAP_so=$'\E[01;44;33m'	# begin standout-mode - info box # yellow on blue
+export LESS_TERMCAP_so=$'\E[38;5;246m'	# begin standout-mode - info box # dark grey
+export LESS_TERMCAP_ue=$'\E[0m'			# end underline
+export LESS_TERMCAP_us=$'\E[01;32m'		# begin underline
 
 # Syntax highlighting in less 
 #	requires GNU source-higlight (http://www.gnu.org/software/src-highlite/)
 #	which in turn requires boost (http://www.boost.org/)
 #	Helpful for Mac: https://wincent.com/wiki/Installing_GNU_Source-highlight_on_Mac_OS_X_10.6.7_Snow_Leopard
-export LESSOPEN="| /usr/local/bin/src-hilite-lesspipe.sh %s"
+#export LESSOPEN="| /usr/local/bin/src-hilite-lesspipe.sh %s"
+
+# Swithed from gnu-source-highlight to using lesspipe with syntax-highlighting
+# This gives the added benefit of being able to open .zip's and some other similar things
+export LESSOPEN="|/usr/local/bin/lesspipe.sh %s"
+export LESSCOLORIZER="pygmentize"
 export LESS=' -R -i-P%f (%i/%m) Page %db/%D'
 
 # Environment-specific rc's
@@ -469,3 +523,4 @@ genworthrc=".genworth_bashrc"
 if [ -f "$env_specific_rc_dir/$genworthrc" ] ; then
   source "$env_specific_rc_dir/$genworthrc"
 fi
+
