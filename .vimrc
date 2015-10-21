@@ -24,10 +24,12 @@ Plugin 'jiangmiao/auto-pairs' " Automatically insert matching (), {}, etc.
 Plugin 'mhinz/vim-startify' "Vim splash screen showing recently edited files
 Plugin 'benmills/vimux' "Better vim/tmux interaction
 Plugin 'ktonga/vim-follow-my-lead' "Displays <Leader> mappings with descriptions with <leader>fml
+Plugin 'qpkorr/vim-bufkill' "Allow deleting a buffer while preserving splits
 
 " Vim scripts
 Plugin 'vim-scripts/matchparenpp' " Echo line of matching (), {}, etc
 Plugin 'vim-scripts/AutoComplPop' " Autocomplete popup suggestions
+Plugin 'vim-scripts/highlight.vim' " Highlight various lines with <C-h><C-h>
 
 call vundle#end()
 filetype plugin indent on
