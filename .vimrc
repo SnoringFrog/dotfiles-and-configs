@@ -25,6 +25,10 @@ Plugin 'mhinz/vim-startify' "Vim splash screen showing recently edited files
 Plugin 'benmills/vimux' "Better vim/tmux interaction
 Plugin 'ktonga/vim-follow-my-lead' "Displays <Leader> mappings with descriptions with <leader>fml
 Plugin 'qpkorr/vim-bufkill' "Allow deleting a buffer while preserving splits
+Plugin 'ap/vim-css-color' "Highlight CSS colors with the color they represent
+Plugin 'mjbrownie/swapit' "C-a/C-x swap cycle like true/false yes/no
+Plugin 'luochen1990/rainbow' "Rainbow parentheses to differtiate nested levels
+let g:rainbow_active = 1 "0 if you want to enable it later via :RainbowToggle
 
 " Vim scripts
 Plugin 'vim-scripts/matchparenpp' " Echo line of matching (), {}, etc
