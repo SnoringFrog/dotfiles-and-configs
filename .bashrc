@@ -485,6 +485,17 @@ fi
 	complete -F _todo todo
 #END:todo.txt/todo.sh
 
+# Use SCRATCHFILE for temp notes:
+"${SCRATCHFILE:=$(mktemp /tmp/scratch.XXXXXX)}" 2>/dev/null
+function scratch(){
+	if [ $# -eq 0 ]; then 
+		less $SCRATCHFILE
+	else
+		echo -e "$@" >> $SCRATCHFILE
+	fi
+}
+alias note='scratch'
+
 ## Colored manpages (from: https://github.com/Arkham/dotfiles/blob/master/bashrc)
 export LESS_TERMCAP_mb=$'\E[01;31m'		# begin blinking
 export LESS_TERMCAP_md=$'\E[01;31m'		# begin bold	
