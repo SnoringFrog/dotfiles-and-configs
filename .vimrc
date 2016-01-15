@@ -51,7 +51,9 @@ if !has('nvim')
 	set wildmenu
 	"set clipboard=unnamed
 
-	
+	"Use better encryption algorithm
+	set cryptmethod=blowfish2
+
 	" Enabling the mouse for:
 	" n = Normal mode
 	" v = Visual mode
@@ -85,7 +87,8 @@ set showcmd		" display incomplete commands
 set showmode	" Show current mode
 set wildmode=list,full
 set whichwrap+=<,>,h,l,[,]
-			
+set formatoptions=tcqnl
+
 " For Win32 GUI: remove 't' flag from 'guioptions': no tearoff menu entries
 " let &guioptions = substitute(&guioptions, "t", "", "g")
 
@@ -140,8 +143,8 @@ if !exists(":DiffOrig")
   command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
 		  \ | wincmd p | diffthis
 endif
+
 		
-"Personal additions
 "Fixing tab width
 set tabstop=4 "The width of a tab is 4
 set shiftwidth=4 "Indents will have a width of 4
@@ -288,6 +291,12 @@ augroup treatAsZip
 	"Treat these filetypes as zip 
 	"(.jar, .war removed because they were being opened twice per browser for some reason)
 	au BufReadCmd *.ear,*.sar,*.rar,*.sublime-package,*.xpi call zip#Browse(expand("<amatch>"))
+augroup END
+
+"Enable spellcheck for certain filetypes
+augroup spellcheck
+	autocmd!
+	autocmd FileType gitcommit,gitrebase,ghmarkdown,markdown,txt,md set spell spelllang=en_us
 augroup END
 
  "Show absolute line number for current line and relative line numbers otherwise

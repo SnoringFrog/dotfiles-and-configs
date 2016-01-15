@@ -44,6 +44,9 @@ shopt -s extglob
 # Use vim
 export EDITOR=vim
 
+# Rogue Options
+export ROGUEOPTS="nojump,flush,seefloor,passgo,name=Frog,fruit=kumquat,file=~/.rogue.save"
+
 # History Options
 #
 # Don't put duplicate lines in the history.
@@ -98,6 +101,7 @@ alias la='ls -A'                              # all but . and ..
 # alias l='ls -CF'                              #
 alias ls='ls -hAF --color --group-directories-first' #human readable, dotfiles, classify, color, directories first
 # alias ls='gls -AF --color --group-directories-first' #Mac with gnu ls
+alias tree='tree -aCF'
 #
 alias ..='cd ..'
 alias ...='cd ../..'
@@ -106,6 +110,13 @@ alias mkdir='mkdir -pv' #mkdir always creates intermediate directories and tells
 # alias touchallthethings='find / -exec touch {} \;' #Touch EVERYTHING
 #
 alias sl='sl -a' #make the experience of typing 'ls' incorrectly as traumatic as possible
+
+alias project_name='project-name-generator --dashed' # Requires project-name-generator module (nodeJS) with my custom bin file
+eval "$(thefuck --alias dammit)"
+
+alias count='sort | uniq -c | sort -nr'
+
+alias stonesoup='crawl'
 
 # Make cd select folders in $HOME if not found in current
 export CDPATH=".:$HOME"
@@ -135,6 +146,7 @@ cdls (){
 	cd "$@"
 	ls
 }
+alias cl='cdls'
 #
 # Get external ip via www.icanhazip.com
 eip() {
@@ -152,10 +164,30 @@ backup() {
 }
 #
 # Set up recycle command if recycle bin exists
+
 RECYCLE_BIN="${HOME}/recycle_bin"
 if [ -d "$RECYCLE_BIN" ]; then
+	# Issue: only works with one file/dir at a time now
 	function recycle () {
-		mv "$@" "$RECYCLE_BIN"
+		#TODO: deal with multiple files of same name in recycle bin 
+		#	(some sort of timestamp? it'll require better checking with the cleanup though)
+		
+		#TODO: work for multiple files
+		
+		#realpath may not be installed, BSD readlink does not work
+		#echo "$(cd "$(dirname "$1")"; pwd)/$(basename "$1")" is portable but may miss intermittent symlinks 
+		
+		fullpath=$(greadlink -e "$1")
+		filename=$(basename "$1")
+
+		command mv -iv "$1" "$RECYCLE_BIN"
+
+		#TODO: handle no file better than this
+		if [ "$?" -ne 0 ]; then
+			return 
+		fi	
+
+		ln -s "$REC/$filename" "$fullpath.rcyl"
 	}
 fi
 #
@@ -178,6 +210,16 @@ pwdiligent(){
 	fi
 }
 alias pwd='pwdiligent'
+#
+# Create and switch to a randomly named directory in my testing directory, then start editing a randomly named file
+# Currently, this will fail in most places, requires nodeJS and project-name-generator
+qtf(){ #quick test file
+	testdir="${HOME}/testdir"
+	newdir="$testdir/$(project-name-generator --dashed)"
+	mkdir "$newdir" && cd "$newdir"
+	LTF="$newdir"
+	vim $(project-name-generator --dashed)
+}
 #
 # This function defines a 'cd' replacement function capable of keeping, 
 # displaying and accessing history of visited directories, up to 10 entries.
@@ -292,6 +334,7 @@ function distribute {
 #
 # Counts the total number of files and directories in the current directory (recursive)
 function fid {
+	# add options for just files or just directories, and for disabling recursion
 	# expand to include links as well
 	local filecount
 	local dircount
@@ -306,6 +349,17 @@ function fid {
 		echo "$dircount directory"
 	else
 		echo "$dircount directories"
+	fi
+}
+#
+# Exit any level of shell depth
+function surface(){
+	if [ $SHLVL -gt 1 ]; then
+		second_from_top=$(pstree -p $$ | grep -m 2 sh$ | tail -1 | awk '{print $2}') 2>/dev/null
+		kill -1 $second_from_top &>/dev/null	
+		wait $second_from_top &>/dev/null
+	else
+		echo "already at the surface"
 	fi
 }
 # Pulled this out into it's own file and sourced that
@@ -440,7 +494,11 @@ function whatthecommit(){
 
 #PS1="\n\[\e[0;34m\]┌─[\[\e[0m\]\[\e[0;32m\]\u@\h\[\e[0m\]\[\e[0;34m\]] \[\e[0m\]\[\e[0;33m\]\w\[\e[0m\]\e[0;31m\]\$(__git_ps1 2>/dev/null)\[\e[0m\]\n\[\e[0;34m\]└─[\[\e[0m\]\[\e[1;37m\]$\[\e[0m\]\[\e[0;34m\]]› \[\e[0m\]"
 
-PS1="\n\[\e[0;34m\]┌─[\[\e[0m\]\[\e[0;32m\]\u@\h\[\e[0m\]\[\e[0;34m\]] \[\e[0m\]\[\e[0;33m\]\w\[\e[0m\]\e[0;31m\]\$(__git_ps1 2>/dev/null)\[\e[0m\]\n\[\e[0;34m\]└─[\[\e[0m\]\[\e[1;37m\]\$ ︻デ═━\[\e[0;31m\]☆ﾟ\[\e[0m\]\[\e[0;34m\]› \[\e[0m\]"
+if [ $SHLVL -gt 1 ]; then
+	shelldepth="[$SHLVL]"
+fi
+
+PS1="\n\[\e[0;34m\]┌─[\[\e[0m\]\[\e[0;32m\]\u@\h\[\e[0m\]\[\e[0;34m\]]$shelldepth \[\e[0m\]\[\e[0;33m\]\w\[\e[0m\]\e[0;31m\]\$(__git_ps1 2>/dev/null)\[\e[0m\]\n\[\e[0;34m\]└─[\[\e[0m\]\[\e[1;37m\]\$ ︻デ═━\[\e[0;31m\]☆ﾟ\[\e[0m\]\[\e[0;34m\]› \[\e[0m\]"
 export PS1
 
 # Fun things to add to prompt:

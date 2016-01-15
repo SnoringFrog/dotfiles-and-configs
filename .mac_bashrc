@@ -206,3 +206,23 @@ cdls (){
 	cd "$@"
 	ls
 }
+
+# Video search commands:
+# Specially tailored for how my videos are stored/tagged, probably not useful to anyone else
+function video_search() {
+recognized_commands=("all" "not_uploaded")
+	case "$1" in
+		all)
+			# Get just filenames of any long Video
+			find . -maxdepth 1 -size +10M \( -name "*.MOV" -o -name "*.mp4" \) | perl -ple "s/\.\///g" 
+			;;
+		not_uploaded)
+			# Find .MOV's without Yellow/Green/Uploaded tags that are in the current folder (not recursive),
+			#  filter down to just filename
+			mdfind -onlyin . 'NOT tag:Yellow AND NOT tag:Green AND NOT tag:Uploaded' -name MOV | ag -s --nocolor MOV | ag --nocolor "$(pwd)/IMG.*MOV" | perl -F"/" -lane 'print $F[-1]'
+			;;
+		*)
+			echo "${recognized_commands[@]}" 
+			;;
+	esac
+}

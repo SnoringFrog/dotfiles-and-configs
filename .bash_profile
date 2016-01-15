@@ -93,3 +93,8 @@ export FIGNORE=DS_Store
 export PATH="/opt/local/bin:/opt/local/sbin:$PATH"
 # Finished adapting your PATH environment variable for use with MacPorts.
 
+# Manually add some things to PATH so LightTable launcher can find them
+export PATH="$PATH:/usr/local/bin:/Library/TeX/texbin"
+
+# cd to dir when I type it's name
+shopt -s autocd
