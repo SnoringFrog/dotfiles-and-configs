@@ -1,0 +1,5 @@
+if hash gls 2>/dev/null; then
+	alias ls='gls -hAF --color --group-directories-first'
+else 
+	alias ls='ls -haFG'
+fi
