@@ -17,7 +17,7 @@ compinit
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=10000
-SAVEHIST=10000
+SAVEHIST=50000
 setopt appendhistory autocd extendedglob sharehistory
 bindkey -v
 # End of lines configured by zsh-newuser-install
