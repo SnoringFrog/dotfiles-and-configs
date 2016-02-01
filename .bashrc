@@ -3,7 +3,7 @@
 # If not running interactively, don't do anything
 [[ "$-" != *i* ]] && return
 
-if [ "$0" == "bash" ]; then
+if [ "$0" == "-bash" ]; then
 	# Shell Options
 	# Don't wait for job termination notification
 	# set -o notify
@@ -548,6 +548,8 @@ fi
 function scratch(){
 	if [ $# -eq 0 ]; then 
 		less $SCRATCHFILE
+	elif [ $1 == "-e" -o $1 == "--edit" ]; then
+		$EDITOR $SCRATCHFILE #TODO if no editor assume (vim for me, nano for others)
 	else
 		echo -e "$@" >> $SCRATCHFILE
 	fi
