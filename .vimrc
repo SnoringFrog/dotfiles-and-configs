@@ -41,7 +41,7 @@ unlet vundle_readme
 
 filetype plugin indent on
 
-" ===Leaders===
+" === Leaders ===
 let mapleader=","
 let maplocalleader="\\"
 
@@ -49,7 +49,7 @@ let maplocalleader="\\"
 nnoremap <leader>, ,
 
 
-" ===Mappings with no category that might confuse people if they don't notice them===
+" === Mappings with no category that might confuse people if they don't notice them ===
 "Swap : and ; 
 nnoremap ; :
 nnoremap : ;
@@ -109,14 +109,14 @@ if has('nvim')
 endif
 
 
-" ===Tabs width/settings===
+" === Tabs width/settings ===
 set tabstop=4 "The width of a tab is 4
 set shiftwidth=4 "Indents will have a width of 4
 set shiftround " > and < round to multiples of shiftwidth
 set softtabstop =4 "Sets the number of columns for a tab
 
 
-" ===Searching===
+" === Searching ===
 "Clear current search hilighting
 nnoremap <silent> ,/ :nohlsearch<CR> 
 
@@ -129,7 +129,7 @@ set ignorecase
 set smartcase
 
 
-" ===Misc basic settings=== 
+" === Misc basic settings=== 
 set formatoptions=tcqnl " :help fo-table
 set matchpairs+=<:> "Set matchpairs for commands like ci 
 set hidden " Hide buffers instead of closing them when another buffer is opened
@@ -142,7 +142,7 @@ set whichwrap+=<,>,h,l,[,] " left/right movement wraps to next line
 set wildmode=list,full
 
 		
-" ===Backup options===
+" === Backup options ===
 if has("vms")
 	set nobackup		" do not keep a backup file, use versions instead
 else
@@ -182,13 +182,13 @@ augroup restoreCursorPos
 augroup END
 
 
-" ===Line Numbers===
+" === Line Numbers ===
 "Show absolute line number for current line and relative line numbers otherwise
 set number
 set relativenumber
 
 
-" ===Displayed info/file status===
+" === Displayed info/file status ===
 set showcmd		" display incomplete commands
 set showmode	" Show current mode
 
@@ -220,7 +220,7 @@ else
 endif
 
 
-" ===Splits===
+" === Splits ===
 set splitright "when splitting horizontally, put new window on right
 set splitbelow "when splitting vertically, put new window below current window 
 
@@ -231,7 +231,7 @@ map <C-h> <C-W>h
 map <C-l> <C-W>l
 
 
-" ===Folds===
+" === Folds ===
 "Press space in normal mode to toggle a fold; otherwise do default behavior
  nnoremap <silent> <Space> @=(foldlevel('.')?'za':"\<Space>")<CR>
 
@@ -296,7 +296,7 @@ augroup hasFolds
 augroup END "hasFounds
 
 
-" ===Tabs===
+" === Tabs ===
 function MyTabLine()
 	let tabstring = ''
 	for i in range(tabpagenr('$'))
@@ -341,7 +341,7 @@ nnoremap <leader>n :tabn<cr>
 "nnoremap <leader>p :tabp<cr>
 
 
-" ===Buffers===
+" === Buffers ===
 " Close current buffer
 nnoremap <leader>bd :bd<CR>
 " Wipeout current buffer
@@ -350,7 +350,7 @@ nnoremap <leader>bw :bw<CR>
 command W bufdo w
 
 
-" ===Movement===
+" === Movement ===
 " emacs movement for insert/normal mode (from: https://github.com/rtomayko/dotfiles) and command line
 noremap <C-e> $
 noremap <C-a> 0
@@ -368,7 +368,7 @@ nnoremap <leader>d O<Esc>jddk
 " Paste from clipboard in paste mode (prevents crazy indent issues)
 nnoremap <leader>p :set paste<CR>o<esc>"+]p:set nopaste<cr>
 
-" ===Making newlines from normal mode===
+" === Making newlines from normal mode ===
 "Add newlines and stay in normal mode
 nnoremap <silent> <C-j> o<Esc>
 nnoremap <silent> <C-k> O<Esc>
@@ -382,7 +382,7 @@ augroup enterNewline
 augroup END "enterNewline
 
 
-" ===Commenting===
+" === Commenting ===
 " TODO: make thus run if Nerdcommenter isn't installed
 "Comment out a line (uneeded now that I use NerdCommenter)
 "augroup commentLineGroup
@@ -393,7 +393,7 @@ augroup END "enterNewline
 "augroup END
 "
 "
-" ===Handling case===
+" === Handling case ===
 " Convert word to lowercase
 nnoremap <leader>lc mqviwu`q
 " Convert word to uppercase
@@ -404,7 +404,7 @@ nnoremap <leader>LC mqgewvu`q
 nnoremap <leader>UC mqgewvU`q
 
 
-" ===Wrapping words with (),[], etc===
+" === Wrapping words with (),[], etc ===
 
 " Wrap a word in double quotes, single quotes, backticks, parens, brackets, braces
 " Uses a custom text object (requires kana/vim-textobj-user) to treat bash/php style $variables as a word
@@ -463,7 +463,7 @@ nnoremap <leader>} viw<esc>a}<esc>hbi{<esc>lel
 "nnoremap <leader>"" viw<esc>a"<esc>hbi"<esc>lelBxp 
 
 
-" ===Assorted Functions===
+" === Assorted Functions ===
 
 "Show spaces and tabs as middot and dagger (requires vim to be compiled with +conceal option)
 "Might be nice to set this up to run automatically for Whitespace files
@@ -512,7 +512,7 @@ augroup Mkdir
 augroup END
 
 
-" ===Plugin Configs===
+" === Plugin Configs ===
 
 " Vim-Startify config
 let g:startify_list_order = [
@@ -552,7 +552,7 @@ nnoremap <leader>ri :VimuxInspectRunner<cr>
 " End vimux configs
 
 
-" ===Filetype Specific (need to be moved to .vim/ftplugin)===
+" === Filetype Specific (need to be moved to .vim/ftplugin) ===
 "
 augroup treatAsZip
 	autocmd!
@@ -613,3 +613,10 @@ augroup labyrinth
 	autocmd FileType labyrinth let b:AutoPairs = {}
 augroup END
 
+" === External .vimrc files ===
+" q-free specific vimrc
+let vimrc_qfree = $HOME . "/.vimrc.d/.vimrc-qfree"
+if filereadable(vimrc_qfree)
+	execute "source" . vimrc_qfree
+endif
+unlet vimrc_qfree
