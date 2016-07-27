@@ -200,7 +200,7 @@ pwdiligent(){
 	logical=`\pwd -L`
 	physical=`\pwd -P`
 	if [ "$physical" == "$logical" ]; then
-		pwd
+		echo "$logical"
 	else
 		echo "Logical: $logical"
 		echo "Physical: $physical"
@@ -406,6 +406,7 @@ function captain-planet {
 
 		let "num=$RANDOM%100"
 		if [ "$num" -eq 0 ]; then
+			# RIP Miss Frizzle, who gave her life and her magic school bus to save her students and create Capt. Planet and the Planeteers
 			echo "Bus, do your stuff..."
 		else
 			echo "With your powers combined, I am Captain Planet!"
