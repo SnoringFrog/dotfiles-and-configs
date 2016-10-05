@@ -1,0 +1,15 @@
+[general]
+enable_hook = True
+sleep_duration = 0.75
+quiet = True
+
+[passport 0]
+email = ethan.piekarski@q-free.com
+name = Ethan Piekarski
+service = bitbucket.org
+
+[passport 1]
+email = snapdragon1127@gmail.com
+name = SnoringFrog
+service = github.com
+

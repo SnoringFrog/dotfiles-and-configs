@@ -1,0 +1,88 @@
+#!/bin/sh
+
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+	against=HEAD
+else
+	# Initial commit: diff against an empty tree object
+	against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+fi
+
+# Redirect output to stderr.
+exec 1>&2
+
+#TODO: 
+# handle filenames with spaces 
+#	needs to prepare the filename list from git diff before passing to ag
+# make disabling and/or changing colorization easier
+#	confirm this works not in Cygwin (or at least doesn't break)
+# add autofix option
+#	perl, probably
+# Determine how to run this from within Eclipse
+#	write up a page on Confluence(something else?) about installing this
+#	may need to cover installing Cygwin and adding it to path
+#	https://www.eclipse.org/forums/index.php/t/1067404/
+# Rework into a general form to put on github
+# Silent/quiet option? or just let people redirect stderr?
+
+# Ensure checks are run against committed material only
+# http://jakemccrary.com/blog/2015/05/31/use-git-pre-commit-hooks-to-stop-unwanted-commits/
+# -- begin content from jakemccrary.com --
+patch_filename=$(mktemp -t commit_hook_changes.XXXXXX)
+git diff --exit-code --binary --ignore-submodules --no-color > $patch_filename
+has_unstaged_changes=$?
+
+if [ $has_unstaged_changes -ne 0 ]; then
+	echo -e "Stashing unstaged changes in $patch_filename\n"
+	git checkout -- .
+fi
+
+quit() {
+	if [ $has_unstaged_changes -ne 0 ]; then
+		git apply --whitespace=nowarn $patch_filename
+		if [ $? -ne 0 ]; then
+			git checkout -- .
+			git apply --whitespace=nowarn $patch_filename
+		fi
+	fi
+
+	echo -e "\nStashed unstaged changes reapplied"
+	exit $1
+}
+# -- end content from jakemccrary.com --
+
+if command -v ag >/dev/null 2>&1; then
+	searchTool="ag"
+else
+	searchTool="grep"
+fi
+
+badImports=(
+'com\.google\.inject\.(inject|named|provider|singleton)\;' 
+'com\.google\.gwt\.event\.shared\.((simple)?eventbus|handlerregistration|umbrellaexception)\;'  
+)
+
+changedFiles=$(git diff --cached --name-only --diff-filter=ACM $against | $searchTool -i '.java$')
+# TODO: process $changedFiles to handle filenames with spaces
+
+# build a single regex so only one search operation is needed
+badImportsRegex='('
+for regex in "${badImports[@]}"; do
+	badImportsRegex+=$regex'|'
+done
+badImportsRegex=$(echo $badImportsRegex | head -c -2)')'
+
+#echo `git diff --cached $against # debugging
+
+badImportsMatches=$($searchTool -Hil $badImportsRegex $changedFiles)
+
+if [[ -n "$badImportsMatches" ]]; then
+	echo -e "The following files contain bad imports that were committed:\n"
+	tput setaf 1
+	echo -e '\t'$badImportsMatches | perl -pe 's/ /\n\t/g'
+	tput sgr0
+	echo -e "\nUse javax and/or com.google.web.bindery.event.shared imports instead"
+	quit 1
+else
+	quit 0
+fi

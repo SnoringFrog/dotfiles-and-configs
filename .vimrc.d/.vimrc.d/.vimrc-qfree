@@ -1,0 +1,4 @@
+" If leader isn't set before this is called, it'll use the default leader
+" I may want to check to see if that's been done or something
+
+nnoremap <leader>oo :4<CR>6wyFOggpA<Space>

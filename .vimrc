@@ -56,8 +56,13 @@ nnoremap : ;
 vnoremap ; :
 vnoremap : ;
 
+" === Yank/Delete ===
 " Y operates to end of line (like D and C)
 noremap Y y$
+
+" dl/yl operate like dd/yy, but they do not yank the newline
+noremap dl ^D"_dd
+noremap yl ^y$
 
 
 if !has("autocmd")

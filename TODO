@@ -1,0 +1,24 @@
+- Relocate files into .d directories
+- Create a core shellrc file for things shared between zsh/bash
+- Merge in changes from OpenRoads
+	- .bashrc:
+		- do_git
+			- this needs to be improved to work more globally, since I can't depend on my custom functions being around
+		- readppt
+		- md5check
+		- sumcheck
+		- ascii_to_hex
+		- windows/Cygwin specific:
+			- AHK_DIR
+			- clip
+			- paste
+			- ctrl+v paste
+			- gch path
+- Combine .bash_profile and .bashrc into .bashrc
+- Write function for adding to PATH
+	- if not already in path, if dir exists, add it to path
+- Add .vim (or at least the syntax files and such?)
+- Find my whitespace syntax highlighter again
+- Use different repo branches for different OS's?
+- Edit any function that deletes files with any potential to be needed to check for my recycle system
+	- use an env var for that?

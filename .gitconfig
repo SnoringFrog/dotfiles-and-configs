@@ -1,0 +1,30 @@
+# This is Git's per-user configuration file.
+[user]
+# Please adapt and uncomment the following lines:
+	name = Ethan Piekarski
+	email = ethan.piekarski@q-free.com
+[push]
+	default = current
+[color]
+	ui = auto
+[diff]
+	mnemonicprefix = true
+[init]
+	templatedir = ~/.git/templates
+[alias]
+	exec = "!exec "
+	checkout-local = "!git checkout -q $(git branch | pick)" # requires github.com/thoughtbot/pick
+	checkout-modified = "!git checkout -q $(git ls-files -m | pick)" # requires github.com/thoughtbot/pick
+	stash-apply-choose = "!git stash apply $(git stash list | pick | cut -d':' -f1)" # requires github.com/thoughtbot/pick
+	stash-drop-choose = "!git stash drop $(git stash list | pick | cut -d':' -f1)" # requires github.com/thoughtbot/pick
+	stash-pop-choose = "!git stash pop $(git stash list | pick | cut -d':' -f1)" # requires github.com/thoughtbot/pick
+	stash-show-choose = "!git stash show $(git stash list | pick | cut -d':' -f1)" # requires github.com/thoughtbot/pick
+	stash-showp-choose = "!git stash show -p $(git stash list | pick | cut -d':' -f1)" # requires github.com/thoughtbot/pick
+	unstage = reset --
+	passport = !${HOME}/.git/hooks/bin/git-passport/git-passport.py
+	cb = symbolic-ref --short HEAD # current branch
+[core]
+	excludesfile = ~/.gitignore_global
+	pager = less -x2
+[color "status"]
+	branch = white
